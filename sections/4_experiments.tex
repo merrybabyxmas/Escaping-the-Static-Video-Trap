@@ -1,10 +1,17 @@
 \section{Results and Philosophical Analysis}
 \label{sec:analysis}
 
-Our evaluation yields a significant discovery: \textbf{Consistency is being used as a shield against complexity.}
+Our large-scale evaluation on 1,000 multi-shot scenarios yields a statistically significant discovery: \textbf{Consistency is being used as a shield against complexity.}
 
 \subsection{The Prevalence of the Static Video Trap}
-As shown in Table~\ref{tab:main_results}, VideoCrafter2 exhibits the most severe case of the Static Video Trap. It achieves a Subject Consistency of 0.96, yet its Background Diversity remains at a mere 0.15. This numerical disparity confirms that the model avoids scene transitions entirely to maintain a high identity score. We argue that this represents a local minimum in the optimization landscape of diffusion models.
+As shown in Table~\ref{tab:main_results} and Figure~\ref{fig:radar}, VideoCrafter2 exhibits the most severe case of the Static Video Trap. It achieves a Subject Consistency of 0.96, yet its Background Diversity remains at a mere 0.22. This numerical disparity confirms that the model avoids scene transitions entirely to maintain a high identity score. We argue that this represents a local minimum in the optimization landscape of diffusion models.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/radar_chart.pdf}
+    \caption{\textbf{Radar Chart of Model Performance.} The "Static Trap" is visualized as a collapsed polygon along the Background Diversity axis (e.g., VideoCrafter2), whereas Identity Hallucination is shown as a collapse along Subject Consistency (e.g., Open-Sora).}
+    \label{fig:radar}
+\end{figure}
 
 \subsection{The Failure of Temporal Smoothness}
 AnimateDiff demonstrates a different failure mode, characterized by low Cut-Transition Sharpness (0.25). In multi-shot prompts, rather than producing distinct cinematic cuts, this model "morphs" the geometry of Shot 1 into Shot 2. While this results in high temporal smoothness scores in traditional metrics like FVD, it is semantically incorrect and visually jarring for narrative storytelling.
