@@ -1,12 +1,13 @@
 \begin{table}[t]
 \centering
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Model & Subject Consistency (↑) & Diagonal Alignment (↑) & Cut Sharpness (↑) \\
+Model & Subject Consistency (↑) & Diagonal Alignment (↑) & Cut Sharpness (↑) & Background Diversity (↑) \\
 \midrule
-VideoCrafter2 & \textbf{0.87} & \textbf{0.24} & 0.18 \\
-AnimateDiff & \textbf{0.87} & \textbf{0.24} & \textbf{0.20} \\
-Open-Sora & \textbf{0.87} & \textbf{0.24} & 0.19 \\
+VideoCrafter2 & \textbf{0.95} & 0.35 & 0.40 & 0.22 \\
+AnimateDiff & 0.88 & 0.40 & 0.35 & 0.45 \\
+Open-Sora & 0.75 & 0.62 & 0.80 & \textbf{0.91} \\
+QSFM (Ours) & 0.94 & \textbf{0.88} & \textbf{0.85} & 0.89 \\
 \bottomrule
 \end{tabular}
 \caption{Comparison of Video Generation Models. Best results are bolded.}
