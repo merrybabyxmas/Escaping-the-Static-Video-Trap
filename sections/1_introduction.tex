@@ -1,0 +1,11 @@
+\section{Introduction}
+\label{sec:intro}
+
+The field of Text-to-Video (T2V) generation has witnessed a paradigm shift with the advent of large-scale diffusion models and Spatiotemporal Transformers. Despite the visual prowess of models like CogVideoX and Open-Sora, a critical question remains: \textit{Are we truly generating videos, or merely high-fidelity slideshows?}
+
+In this paper, we identify a systemic failure in current video generation research, which we term the \textbf{Static Video Trap}. Current evaluation metrics, such as Fr\'echet Video Distance (FVD) and frame-wise CLIP similarity, exhibit a pathological bias toward temporal stasis. A model that replicates the first frame across the entire temporal axis often receives higher consistency scores than a model that successfully renders complex multi-shot transitions. This "illusion of progress" has led the community to optimize for a degenerate solution: the generation of visually stunning but narratively stagnant content.
+
+To address this, we propose \textbf{Dynamic-MSV-Bench}, a multidimensional benchmark specifically designed to stress-test multi-shot video generation. Our contributions are three-fold:
+(1) We define the \textit{Static Video Trap} and provide mathematical evidence of its prevalence in current SOTA models.
+(2) We introduce a 4-way evaluation framework that decouples subject identity from background dynamics.
+(3) We perform an exhaustive benchmarking of 5 SOTA models, revealing that none can yet navigate the trade-off between identity permanence and scene fluidity.

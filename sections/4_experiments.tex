@@ -1,0 +1,16 @@
+\section{Experimental Analysis: Exposing the Trap}
+\label{sec:analysis}
+
+Our benchmarking results, summarized in Table~\ref{tab:main_results}, provide a sobering look at the state of T2V generation.
+
+\textbf{Case Study 1: The High-Fidelity Slideshow (VideoCrafter2).}
+As evidenced by its near-perfect Subject Consistency (0.96), VideoCrafter2 appears to be a leader in temporal stability. However, its Background Diversity is abysmally low (0.15). Qualitative inspection reveals that the model essentially keeps the background frozen, merely adding micro-movements to the subject. This is the quintessence of the \textit{Static Video Trap}.
+
+\textbf{Case Study 2: Identity Hallucination in DiTs (Open-Sora).}
+In contrast, Transformer-based models like Open-Sora exhibit the opposite failure mode. While achieving the highest Background Diversity (0.88), its Subject Consistency collapses to 0.65. The model successfully changes the scene as prompted, but in doing so, it completely "hallucinates" a new subject identity, failing the fundamental requirement of object permanence in narrative video.
+
+\textbf{Case Study 3: The Morphing Artifact (AnimateDiff).}
+AnimateDiff attempts to balance motion and identity but fails at the shot boundaries. Its Cut-Transition Sharpness of 0.25 is significantly lower than other baselines. Instead of a clean cut, the model produces a "smear" where the two shots overlap in a latent soup, a failure that traditional metrics like FVD ironically reward due to temporal smoothness.
+
+\textbf{Conclusion of Benchmarking.}
+The Pareto frontier of current models is far from the ideal upper-right corner. We conclude that current architectural priors are fundamentally biased toward either "static persistence" or "dynamic hallucination," with no model yet capable of true decoupled dynamics.
