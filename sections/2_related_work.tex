@@ -1,0 +1,11 @@
+\section{Related Work}
+\label{sec:related_work}
+
+\textbf{Video Generation Benchmarks.} 
+Early benchmarks like UCF-101 or MSR-VTT focused on action recognition but have been co-opted for generation. More recently, VBench \cite{vbench} and SEACrowd \cite{seacrowd} have introduced fine-grained dimensions like aesthetic quality and motion smoothness. However, these benchmarks typically evaluate single-shot, short-duration clips. Our work differs by specifically targeting \textit{multi-shot} transitions, where the trade-off between subject permanence and scene change is most acute.
+
+\textbf{The Identity Consistency Problem.}
+Maintaining subject identity is a known challenge in T2V. Methods like AnimateDiff \cite{animatediff} utilize motion modules to stabilize frames, while DiT-based models like Open-Sora leverage long-context Transformers. While successful in stabilizing short clips, we demonstrate that these stabilization techniques often lead to the \textit{Static Video Trap}, where the model becomes "lazy" and avoids rendering significant changes to the latent space to preserve identity.
+
+\textbf{Automated Evaluation with VLMs.}
+Following WildVision \cite{wildvision}, there is a growing trend of using VLMs as judges. We incorporate a VLM-as-a-Judge component to evaluate narrative coherence, complementing our pixel- and embedding-level metrics to provide a holistic view of video quality.
