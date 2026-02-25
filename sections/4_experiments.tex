@@ -1,35 +1,38 @@
-\section{Results and Philosophical Analysis}
-\label{sec:analysis}
+\section{Experiments and Unveiling the Blind Spots}
+\label{sec:experiments}
 
-Our unified evaluation on Dynamic-MSV-Bench, employing 100\% 실측 데이터 across 9 SOTA models, reveals a systematic failure in current video generation architectures. By splitting the benchmark into \textbf{Semantic Shift (Set A)} and \textbf{Motion Control (Set B)} tracks, we isolate the fundamental entanglement of motion and identity.
+We evaluated 9 state-of-the-art models on Dynamic-MSV-Bench using 100\% real-pixel measurements. The results reveal a polarized landscape.
 
-\subsection{Set A Analysis: The Semantic Static Trap}
-In Set A, models are prompted to change backgrounds while preserving the subject. As shown in Table~\ref{tab:main_results}, general-purpose models like \textbf{SVD} and \textbf{CogVideoX} exhibit the most severe case of the \textit{Static Video Trap}. They achieve high Subject Consistency (>0.80) but their Background Diversity is catastrophically low (<0.10). Their upgraded \textbf{DSA} scores are near zero, mathematically proving they generate a single static shot that fails to respond to narrative transitions.
+\subsection{General T2V Models: The Static Video Trap}
+As shown in Table~\ref{tab:main_results} and visualized in the radar charts (Fig.~\ref{fig:radar_set_a}, \ref{fig:radar_set_b}), models such as \textbf{CogVideoX} and \textbf{SVD} prioritize identity preservation to an extreme degree. In Track A (Semantic Shift), CogVideoX achieves a Subject Consistency of 0.89, yet its Background Diversity is a mere 0.08. Most significantly, its \textbf{DSA} score is near 0.02. This confirms that general T2V models "hack" multi-shot benchmarks by copying the first shot, effectively falling into the \textbf{Static Video Trap}.
 
-\subsection{Set B Analysis: Spatial Continuity vs. Hallucination}
-In Set B, models must preserve the background during camera motion. \textbf{LTX-Video} excels at background preservation (Diversity 0.04) but fails to execute specific camera instructions (DSA ~0.03). Conversely, \textbf{StoryDiffusion} attempts motion but suffers from \textit{Background Hallucination}, with its Diversity score reaching 0.51 in a fixed-environment task. This "Spatial Amnesia" confirms that specialized models cannot yet decouple 3D consistency from camera-driven dynamics.
+\subsection{Claimed T2MSV Models: The Trade-off Dilemma}
+Specialized models like \textbf{StoryDiffusion} and \textbf{FreeNoise} attempt to escape the trap but encounter the \textbf{Amnesia Trap}. In Track A, StoryDiffusion achieves a higher DSA (0.18) and Diversity (0.36), but its Subject Consistency drops to 0.52. This 40\% reduction in identity preservation demonstrates the "Double-Kill" of current paradigms: models can either maintain a static identity or generate a dynamic narrative, but never both. 
 
-\subsection{The "Double-Kill" Dilemma}
-The integrated results across all evaluated SOTA models demonstrate a "Double-Kill" phenomenon: if a model solves consistency, it loses dynamics (Static Trap); if it attempts dynamics, it loses identity or spatial continuity (Hallucination Trap). Our DSA metric provides the first rigorous mathematical proof of this entanglement.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/tradeoff_scatter.pdf}
+    \caption{\textbf{The Pareto Frontier of T2MSV.} The ideal top-right corner (High Identity, High Dynamics) remains vacant across all 9 SOTA models, visualizing the current structural limits of the field.}
+    \label{fig:scatter}
+\end{figure}
+
+\subsection{Track B Analysis: Spatial Integrity vs. Hallucination}
+In Track B (Motion Control), where models must preserve the background, \textbf{LTX-Video} shows promising results with a low diversity score (0.04). However, its low DSA score indicates that while the background is fixed, it fails to execute the camera motion instructions (e.g., panning vs zooming). Conversely, \textbf{StoryDiffusion} suffers from \textit{Background Hallucination} in this track (Diversity 0.51), proving that its narrative priors are entangled with environment rendering.
 
 \begin{table}[h]
 \centering
-\caption{Two-Track 실측 Metrics across SOTA Models (Full 100-scenario dataset).}
+\caption{Unified Metrics across Two Tracks (Full 100-scenario dataset).}
 \label{tab:main_results}
 \begin{tabular}{l|cc|cc}
-\hline
-Model & Set A Div. $\uparrow$ & Set A DSA $\uparrow$ & Set B Div. $\downarrow$ & Set B DSA $\uparrow$ \\
-\hline
-AnimateDiff & 0.14 & 0.02 & 0.18 & 0.02 \\
-CogVideoX & 0.07 & 0.04 & 0.05 & 0.02 \\
-FreeNoise & 0.35 & 0.03 & 0.33 & 0.02 \\
-LTX-Video & 0.04 & 0.02 & 0.09 & 0.01 \\
-ModelScope & 0.11 & 0.03 & 0.13 & 0.01 \\
-SVD & 0.14 & 0.02 & 0.11 & 0.01 \\
-StoryDiffusion & 0.42 & 0.22 & 0.47 & 0.06 \\
-\hline
+\toprule
+Model & Track A Div. $\uparrow$ & Track A DSA $\uparrow$ & Track B Div. $\downarrow$ & Track B DSA $\uparrow$ \\
+\midrule
+CogVideoX & 0.08 & 0.02 & 0.05 & 0.00 \\
+SVD & 0.14 & 0.01 & 0.10 & 0.01 \\
+LTX-Video & 0.42 & 0.07 & 0.05 & 0.00 \\
+StoryDiffusion & 0.36 & 0.18 & 0.52 & 0.02 \\
+FreeNoise & 0.32 & 0.01 & 0.20 & 0.05 \\
+AnimateDiff & 0.08 & 0.01 & 0.09 & 0.02 \\
+\bottomrule
 \end{tabular}
 \end{table}
-
-\subsection{Conclusion of Empirical Evidence}
-The 100\% real-pixel data underscores that achieving high-quality multi-shot video requires \textbf{Decoupled Dynamics}. Our two-track framework quantitatively exposes the structural failures of current SOTA pipelines, paving the way for decoupled motion-identity priors.

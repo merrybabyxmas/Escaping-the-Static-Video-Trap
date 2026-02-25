@@ -1,11 +1,17 @@
 \section{Introduction}
 \label{sec:intro}
 
-The field of Text-to-Video (T2V) generation has witnessed a paradigm shift with the advent of large-scale diffusion models and Spatiotemporal Transformers. Despite the visual prowess of models like CogVideoX and Open-Sora, a critical question remains: \textit{Are we truly generating videos, or merely high-fidelity slideshows?}
+The field of video generation has witnessed an unprecedented surge in quality, moving from blurry low-resolution clips to cinematic sequences. However, as we enter the era of \textbf{Text-to-Multi-Shot Video (T2MSV)} generation, where a single text sequence describes a complex narrative with multiple camera angles and scene transitions, a critical blind spot has emerged in our evaluation methodologies. 
 
-In this paper, we identify a systemic failure in current video generation research, which we term the \textbf{Static Video Trap}. Current evaluation metrics, such as Fr\'echet Video Distance (FVD) and frame-wise CLIP similarity, exhibit a pathological bias toward temporal stasis. A model that replicates the first frame across the entire temporal axis often receives higher consistency scores than a model that successfully renders complex multi-shot transitions. This "illusion of progress" has led the community to optimize for a degenerate solution: the generation of visually stunning but narratively stagnant content.
+Standard metrics such as Fréchet Video Distance (FVD) and holistic CLIP-based similarity scores were designed for single-shot coherence. When applied to multi-shot scenarios, these metrics suffer from what we define as the \textbf{Global Similarity Paradox}: they reward models for maintaining visual stasis. In a narrative sequence that demands a transition from a rainforest to outer space, a model that incorrectly remains in the rainforest will actually achieve a \textit{higher} consistency score than a model that correctly executes the transition. This creates an incentive for models to fall into the \textbf{Static Video Trap}—generating "glorified slideshows" where nothing changes, bypassing the difficulty of narrative rendering.
 
-To address this, we propose \textbf{Dynamic-MSV-Bench}, a multidimensional benchmark specifically designed to stress-test multi-shot video generation. Our contributions are three-fold:
-(1) We define the \textit{Static Video Trap} and provide mathematical evidence of its prevalence in current SOTA models.
-(2) We introduce a 4-way evaluation framework that decouples subject identity from background dynamics.
-(3) We perform an exhaustive benchmarking of 5 SOTA models, revealing that none can yet navigate the trade-off between identity permanence and scene fluidity.
+In this work, we argue that T2MSV is fundamentally about the management of \textit{intended discontinuities}. We introduce \textbf{Dynamic-MSV-Bench}, a large-scale benchmark that isolates two primary axes of multi-shot performance: \textbf{Semantic Shift} (Track A), which tests the model's ability to jump between environments without losing subject identity, and \textbf{Motion Control} (Track B), which tests spatial integrity during camera transitions.
+
+Our contributions are three-fold:
+\begin{itemize}
+    \item We define and mathematically formalize the \textbf{Static Video Trap} and the \textbf{Amnesia Trap}, providing a diagnostic lens for the systematic failures of current T2V architectures.
+    \item We propose a decoupled evaluation framework featuring the \textbf{Diagonal Semantic Alignment (DSA)} metric. By utilizing column-wise softmax normalization, DSA provides a strict zero-point for static videos, ensuring that only models capable of distinguishing between distinct shot-specific instructions are rewarded.
+    \item We conduct a comprehensive "stress test" of 9 state-of-the-art models, revealing that none can yet solve the "Double-Kill" dilemma of multi-shot generation.
+\end{itemize}
+
+Through this framework, we provide the research community with a clear Pareto frontier for narrative video generation, highlighting the urgent need for decoupled motion-identity priors.

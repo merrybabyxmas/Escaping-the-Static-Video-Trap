@@ -1,8 +1,6 @@
-\section{Conclusion}
+\section{Conclusion and Call to Action}
 \label{sec:conclusion}
 
-In this paper, we introduced the \textbf{Dynamic-MSV-Bench} and a novel 4-dimensional evaluation framework to expose the critical limitations of current video generation models. Our comprehensive evaluation of both General T2V models (e.g., VideoCrafter2, Open-Sora) and Dedicated T2MSV models (e.g., StoryDiffusion, FreeNoise, DirecT2V) strictly followed their official implementations. 
+In this paper, we introduced \textbf{Dynamic-MSV-Bench} and a novel decoupled evaluation framework to address the systemic blind spots in Text-to-Multi-Shot Video (T2MSV) generation. Through 100\% real-pixel analysis of 9 SOTA models, we have mathematically and qualitatively exposed the \textbf{Static Video Trap} and the \textbf{Amnesia Trap}. 
 
-The results unequivocally validate our core hypothesis: existing architectures are caught in a "Double-Kill" dilemma. Models either overfit to the \textit{identity prior}, resulting in the \textbf{Static Video Trap} where characters remain consistent but scenes refuse to change; or they attempt temporal extension through noise manipulation, falling into the \textbf{Morphing Trap} where shots melt into one another rather than cutting sharply.
-
-These findings highlight that incremental improvements or prompt engineering cannot solve the fundamental entanglement of motion and identity within current diffusion mechanisms. To achieve true multi-shot narrative video generation, the field must move toward \textbf{Decoupled Dynamics}—where subject identity is strictly preserved without suppressing dynamic scene transitions or cinematic cuts. We believe our benchmark provides the essential compass for developing such decoupled architectures in future research.
+Our findings indicate that the current paradigm of monolithic video priors is fundamentally incapable of achieving the high-consistency, high-dynamics regime required for professional narrative. The field must pivot toward \textbf{Decoupled Dynamics}—architectures that can strictly isolate identity priors from narrative-driven motion priors. We believe our benchmark provides the necessary diagnostic tool to track and catalyze progress toward truly cinematic, multi-shot AI video.

@@ -1,11 +1,14 @@
 \section{Related Work}
-\label{sec:related_work}
+\label{sec:related}
 
-\textbf{Video Generation Benchmarks.} 
-Early benchmarks like UCF-101 or MSR-VTT focused on action recognition but have been co-opted for generation. More recently, VBench \cite{vbench} and SEACrowd \cite{seacrowd} have introduced fine-grained dimensions like aesthetic quality and motion smoothness. However, these benchmarks typically evaluate single-shot, short-duration clips. Our work differs by specifically targeting \textit{multi-shot} transitions, where the trade-off between subject permanence and scene change is most acute.
+\subsection{Specialized T2MSV Frameworks}
+Recent research has begun to address the complexities of narrative video. StoryDiffusion~\cite{storydiff} and DirecT2V~\cite{direct2v} attempt to maintain character consistency across multiple generations using reference attention or LLM-driven directors. However, as our experiments show, these models often suffer from \textbf{Prompt Bleeding}, where semantic information from Shot 1 contaminated Shot 2, preventing sharp narrative transitions.
 
-\textbf{The Identity Consistency Problem.}
-Maintaining subject identity is a known challenge in T2V. Methods like AnimateDiff \cite{animatediff} utilize motion modules to stabilize frames, while DiT-based models like Open-Sora leverage long-context Transformers. While successful in stabilizing short clips, we demonstrate that these stabilization techniques often lead to the \textit{Static Video Trap}, where the model becomes "lazy" and avoids rendering significant changes to the latent space to preserve identity.
+\subsection{The Flaws of Legacy Evaluation}
+Current benchmarks like VBench~\cite{vbench} rely on three types of metrics that we argue are ill-suited for T2MSV:
 
-\textbf{Automated Evaluation with VLMs.}
-Following WildVision \cite{wildvision}, there is a growing trend of using VLMs as judges. We incorporate a VLM-as-a-Judge component to evaluate narrative coherence, complementing our pixel- and embedding-level metrics to provide a holistic view of video quality.
+\textbf{1. Holistic Image Similarity:} StoryDiffusion~\cite{storydiff} uses average CLIP similarity between all frames to prove character consistency. This creates the \textit{Global Similarity Paradox}: if a model correctly changes the background as prompted, the holistic similarity \textit{decreases}. Thus, models are penalized for correct behavior. Our framework resolves this by using DINOv2-based subject masking to isolate identity from dynamics.
+
+\textbf{2. Uniform Continuity Bias:} Standard temporal metrics reward sub-pixel smoothness across all frames. In T2MSV, cinematic grammar requires intentional "cuts" or discontinuities. Legacy metrics treat these sharp transitions as visual artifacts. We introduce Track-aware Sharpness, which rewards high sharpness only when a shot transition is explicitly prompted.
+
+\textbf{3. VLM-as-a-Judge Limits:} While DirecT2V~\cite{direct2v} employs GPT-4V for narrative QA, language models are notoriously bad at catching pixel-level "morphing" artifacts—where one object slowly dissolves into another instead of cutting. Our mathematical \textbf{DSA} metric provides a more rigorous, objective measure of shot-level independent adherence.

@@ -1,13 +1,25 @@
-\section{Proposed Evaluation Framework}
-\label{sec:metrics}
+\section{Dynamic-MSV-Bench and Metrics}
+\label{sec:benchmark}
 
-We argue that a robust multi-shot video metric must be \textit{decoupled} and \textit{adversarial}. We propose three key metrics to break the Static Video Trap.
+We propose \textbf{Dynamic-MSV-Bench}, comprising 100 high-fidelity multi-shot scenarios across two distinct tracks designed to push current diffusion architectures to their limits.
 
-\textbf{Metric 1: Decoupled Subject-Background Consistency.} 
-Standard CLIP-based consistency fails because the background dominates the embedding. We utilize Grounding-DINO to isolate the subject. We define Subject Consistency ($\mathcal{C}_s$) as the mean DINOv2 cosine similarity of cropped subjects across shots, and Background Diversity ($\mathcal{D}_b$) as the variance of the remaining pixel-space embeddings.
+\subsection{Track A: Semantic Shift (Narrative Diversity)}
+Track A evaluates the model's ability to maintain a consistent subject while drastically changing the environment (e.g., from an underwater ruin to a Himalayan peak). 
+\textbf{Golden Rule for Track A:} HIGH Background Diversity, HIGH Cut Sharpness, and HIGH Subject Consistency. A low diversity score in this track identifies the \textbf{Static Trap}.
 
-\textbf{Metric 2: Diagonal Semantic Alignment (DSA).}
-For a multi-shot prompt sequence $P = \{P_1, \dots, P_K\}$, a video $V$ should satisfy $V_i \approx P_i$. We construct a $K \times K$ alignment matrix $A_{i,j} = \text{sim}(V_i, P_j)$. The DSA score is defined as the ratio of the diagonal energy to the total matrix energy. A low DSA score indicates that the model is "leaking" semantics from previous shots into current ones—a hallmark of the Static Video Trap.
+\subsection{Track B: Motion Control (Spatial Integrity)}
+Track B focuses on camera dynamics (Pan, Zoom, Tilt) within a fixed environment. This tests the model's spatial reasoning and its ability to follow fine-grained physical instructions.
+\textbf{Golden Rule for Track B:} LOW Background Diversity, LOW Cut Sharpness (smooth transitions), and HIGH Subject Consistency. A high diversity score here indicates \textbf{Background Hallucination}.
 
-\textbf{Metric 3: Cut-Transition Sharpness (CTS).}
-Current models often transition between shots using "morphing" artifacts—unrealistic pixel-blending that minimizes LPIPS distance. CTS measures the kurtosis of the frame-to-frame LPIPS distance, penalizing models that fail to produce clean, distinct cinematic cuts.
+\subsection{The 4D Decoupled Metrics}
+Our framework utilizes four indices to quantify performance:
+\begin{enumerate}
+    \item \textbf{Subject Consistency ($\mathcal{C}_{subj}$):} DINOv2-based similarity of masked subject regions across $K$ shots.
+    \item \textbf{Background Diversity ($\mathcal{D}_{bg}$):} Variance of CLIP/DINO embeddings in the environment region.
+    \item \textbf{Cut-Transition Sharpness ($\mathcal{S}_{cut}$):} Normalized LPIPS distance peaks at shot boundaries.
+    \item \textbf{Diagonal Semantic Alignment (DSA):}
+    Our core novelty, DSA, uses column-wise softmax probabilities:
+    $$P_{i,j} = \frac{\exp(\tau \cdot M_{i,j})}{\sum_{k=1}^{K} \exp(\tau \cdot M_{k,j})}$$
+    $$DSA = \frac{\left( \frac{1}{K} \sum_{i=1}^{K} P_{i,i} \right) - \frac{1}{K}}{1 - \frac{1}{K}}$$
+    This formulation ensures that a static video, where all shots are identical, yields a DSA of exactly 0.0.
+\end{enumerate}
