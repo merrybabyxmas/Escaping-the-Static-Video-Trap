@@ -14,9 +14,9 @@ Track B focuses on camera dynamics (Pan, Zoom, Tilt) within a fixed environment.
 \subsection{The 4D Decoupled Metrics}
 Our framework utilizes four indices to quantify performance:
 \begin{enumerate}
-    \item \textbf{Subject Consistency ($\mathcal{C}_{subj}$):} DINOv2-based similarity of masked subject regions across $K$ shots.
-    \item \textbf{Background Diversity ($\mathcal{D}_{bg}$):} Variance of CLIP/DINO embeddings in the environment region.
-    \item \textbf{Cut-Transition Sharpness ($\mathcal{S}_{cut}$):} Normalized LPIPS distance peaks at shot boundaries.
+    \item \textbf{Subject Consistency ($\mathcal{C}_{subj}$):} DINOv2~\cite{oquab2023dinov2} based similarity of masked subject regions across $K$ shots.
+    \item \textbf{Background Diversity ($\mathcal{D}_{bg}$):} Variance of CLIP~\cite{radford2021learning} or DINO embeddings in the environment region.
+    \item \textbf{Cut-Transition Sharpness ($\mathcal{S}_{cut}$):} Normalized LPIPS~\cite{zhang2018perceptual} distance peaks at shot boundaries.
     \item \textbf{Diagonal Semantic Alignment (DSA):}
     Our core novelty, DSA, uses column-wise softmax probabilities:
     $$P_{i,j} = \frac{\exp(\tau \cdot M_{i,j})}{\sum_{k=1}^{K} \exp(\tau \cdot M_{k,j})}$$

@@ -2,13 +2,13 @@
 \label{sec:related}
 
 \subsection{Specialized T2MSV Frameworks}
-Recent research has begun to address the complexities of narrative video. StoryDiffusion~\cite{storydiff} and DirecT2V~\cite{direct2v} attempt to maintain character consistency across multiple generations using reference attention or LLM-driven directors. However, as our experiments show, these models often suffer from \textbf{Prompt Bleeding}, where semantic information from Shot 1 contaminated Shot 2, preventing sharp narrative transitions.
+Recent research has begun to address the complexities of narrative video. StoryDiffusion~\cite{zhou2024storydiffusion} and DirecT2V~\cite{hong2023large} attempt to maintain character consistency across multiple generations using reference attention or LLM-driven directors. However, as our experiments show, these models often suffer from \textbf{Prompt Bleeding}, where semantic information from Shot 1 contaminated Shot 2, preventing sharp narrative transitions.
 
 \subsection{The Flaws of Legacy Evaluation}
-Current benchmarks like VBench~\cite{vbench} rely on three types of metrics that we argue are ill-suited for T2MSV:
+Current benchmarks like VBench~\cite{huang2023vbench} rely on three types of metrics that we argue are ill-suited for T2MSV:
 
-\textbf{1. Holistic Image Similarity:} StoryDiffusion~\cite{storydiff} uses average CLIP similarity between all frames to prove character consistency. This creates the \textit{Global Similarity Paradox}: if a model correctly changes the background as prompted, the holistic similarity \textit{decreases}. Thus, models are penalized for correct behavior. Our framework resolves this by using DINOv2-based subject masking to isolate identity from dynamics.
+\textbf{1. Holistic Image Similarity:} StoryDiffusion~\cite{zhou2024storydiffusion} uses average CLIP similarity between all frames to prove character consistency. This creates the \textit{Global Similarity Paradox}: if a model correctly changes the background as prompted, the holistic similarity \textit{decreases}. Thus, models are penalized for correct behavior. Our framework resolves this by using DINOv2~\cite{oquab2023dinov2} based subject masking to isolate identity from dynamics.
 
 \textbf{2. Uniform Continuity Bias:} Standard temporal metrics reward sub-pixel smoothness across all frames. In T2MSV, cinematic grammar requires intentional "cuts" or discontinuities. Legacy metrics treat these sharp transitions as visual artifacts. We introduce Track-aware Sharpness, which rewards high sharpness only when a shot transition is explicitly prompted.
 
-\textbf{3. VLM-as-a-Judge Limits:} While DirecT2V~\cite{direct2v} employs GPT-4V for narrative QA, language models are notoriously bad at catching pixel-level "morphing" artifacts—where one object slowly dissolves into another instead of cutting. Our mathematical \textbf{DSA} metric provides a more rigorous, objective measure of shot-level independent adherence.
+\textbf{3. VLM-as-a-Judge Limits:} While DirecT2V~\cite{hong2023large} employs GPT-4V for narrative QA, language models are notoriously bad at catching pixel-level "morphing" artifacts—where one object slowly dissolves into another instead of cutting. Our mathematical \textbf{DSA} metric, utilizing CLIP~\cite{radford2021learning}, provides a more rigorous, objective measure of shot-level independent adherence.

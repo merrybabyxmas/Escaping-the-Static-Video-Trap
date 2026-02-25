@@ -4,10 +4,10 @@
 We evaluated 9 state-of-the-art models on Dynamic-MSV-Bench using 100\% real-pixel measurements. The results reveal a polarized landscape.
 
 \subsection{General T2V Models: The Static Video Trap}
-As shown in Table~\ref{tab:main_results} and visualized in the radar charts (Fig.~\ref{fig:radar_set_a}, \ref{fig:radar_set_b}), models such as \textbf{CogVideoX} and \textbf{SVD} prioritize identity preservation to an extreme degree. In Track A (Semantic Shift), CogVideoX achieves a Subject Consistency of 0.89, yet its Background Diversity is a mere 0.08. Most significantly, its \textbf{DSA} score is near 0.02. This confirms that general T2V models "hack" multi-shot benchmarks by copying the first shot, effectively falling into the \textbf{Static Video Trap}.
+As shown in Table~\ref{tab:main_results} and visualized in the radar charts (Fig.~\ref{fig:radar_set_a}, \ref{fig:radar_set_b}), models such as \textbf{CogVideoX}~\cite{yang2024cogvideox} and \textbf{SVD}~\cite{blattmann2023stable} prioritize identity preservation to an extreme degree. In Track A (Semantic Shift), CogVideoX achieves a Subject Consistency of 0.89, yet its Background Diversity is a mere 0.08. Most significantly, its \textbf{DSA} score is near 0.02. This confirms that general T2V models "hack" multi-shot benchmarks by copying the first shot, effectively falling into the \textbf{Static Video Trap}.
 
 \subsection{Claimed T2MSV Models: The Trade-off Dilemma}
-Specialized models like \textbf{StoryDiffusion} and \textbf{FreeNoise} attempt to escape the trap but encounter the \textbf{Amnesia Trap}. In Track A, StoryDiffusion achieves a higher DSA (0.18) and Diversity (0.36), but its Subject Consistency drops to 0.52. This 40\% reduction in identity preservation demonstrates the "Double-Kill" of current paradigms: models can either maintain a static identity or generate a dynamic narrative, but never both. 
+Specialized models like \textbf{StoryDiffusion}~\cite{zhou2024storydiffusion} and \textbf{FreeNoise}~\cite{qiu2023freenoise} attempt to escape the trap but encounter the \textbf{Amnesia Trap}. In Track A, StoryDiffusion achieves a higher DSA (0.18) and Diversity (0.36), but its Subject Consistency drops to 0.52. This 40\% reduction in identity preservation demonstrates the "Double-Kill" of current paradigms: models can either maintain a static identity or generate a dynamic narrative, but never both. 
 
 \begin{figure}[t]
     \centering
@@ -17,7 +17,7 @@ Specialized models like \textbf{StoryDiffusion} and \textbf{FreeNoise} attempt t
 \end{figure}
 
 \subsection{Track B Analysis: Spatial Integrity vs. Hallucination}
-In Track B (Motion Control), where models must preserve the background, \textbf{LTX-Video} shows promising results with a low diversity score (0.04). However, its low DSA score indicates that while the background is fixed, it fails to execute the camera motion instructions (e.g., panning vs zooming). Conversely, \textbf{StoryDiffusion} suffers from \textit{Background Hallucination} in this track (Diversity 0.51), proving that its narrative priors are entangled with environment rendering.
+In Track B (Motion Control), where models must preserve the background, \textbf{LTX-Video}~\cite{HaCohen2024LTXVideo} shows promising results with a low diversity score (0.04). However, its low DSA score indicates that while the background is fixed, it fails to execute the camera motion instructions (e.g., panning vs zooming). Conversely, \textbf{StoryDiffusion} suffers from \textit{Background Hallucination} in this track (Diversity 0.51), proving that its narrative priors are entangled with environment rendering.
 
 \begin{table}[h]
 \centering
@@ -27,12 +27,12 @@ In Track B (Motion Control), where models must preserve the background, \textbf{
 \toprule
 Model & Track A Div. $\uparrow$ & Track A DSA $\uparrow$ & Track B Div. $\downarrow$ & Track B DSA $\uparrow$ \\
 \midrule
-CogVideoX & 0.08 & 0.02 & 0.05 & 0.00 \\
-SVD & 0.14 & 0.01 & 0.10 & 0.01 \\
-LTX-Video & 0.42 & 0.07 & 0.05 & 0.00 \\
-StoryDiffusion & 0.36 & 0.18 & 0.52 & 0.02 \\
-FreeNoise & 0.32 & 0.01 & 0.20 & 0.05 \\
-AnimateDiff & 0.08 & 0.01 & 0.09 & 0.02 \\
+CogVideoX~\cite{yang2024cogvideox} & 0.08 & 0.02 & 0.05 & 0.00 \\
+SVD~\cite{blattmann2023stable} & 0.14 & 0.01 & 0.10 & 0.01 \\
+LTX-Video~\cite{HaCohen2024LTXVideo} & 0.42 & 0.07 & 0.05 & 0.00 \\
+StoryDiffusion~\cite{zhou2024storydiffusion} & 0.36 & 0.18 & 0.52 & 0.02 \\
+FreeNoise~\cite{qiu2023freenoise} & 0.32 & 0.01 & 0.20 & 0.05 \\
+AnimateDiff~\cite{guo2023animatediff} & 0.08 & 0.01 & 0.09 & 0.02 \\
 \bottomrule
 \end{tabular}
 \end{table}
