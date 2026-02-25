@@ -2,13 +2,13 @@
 \label{sec:related}
 
 \subsection{Foundation Models vs. Specialized Frameworks}
-The field has bifurcated into \textbf{Foundation T2V Models} (e.g., CogVideoX~\cite{yang2024cogvideox}, LTX-Video~\cite{HaCohen2024LTXVideo}, SVD~\cite{blattmann2023stable}) and \textbf{Specialized T2MSV Frameworks} (e.g., StoryDiffusion~\cite{zhou2024storydiffusion}, DirecT2V~\cite{hong2023large}, Mora~\cite{yuan2024mora}). While foundation models learn raw spatiotemporal priors, they often lack the explicit control needed for multi-shot narrative. Specialized frameworks attempt to enforce consistency using reference attention or agentic pipelines, but our evaluation reveals they frequently suffer from \textit{prompt bleeding} and \textit{identity amnesia}.
+The field has bifurcated into \textbf{Foundation T2V Models} (e.g., CogVideoX~\cite{yang2024cogvideox}, LTX-Video~\cite{HaCohen2024LTXVideo}, SVD~\cite{blattmann2023stable}) and \textbf{Specialized T2MSV Frameworks} (e.g., StoryDiffusion~\cite{zhou2024storydiffusion}, DirecT2V~\cite{hong2023large}, Mora~\cite{yuan2024mora}). While foundation models learn powerful raw spatiotemporal priors, they critically lack the explicit control needed for multi-shot narrative. Specialized frameworks attempt to enforce consistency using reference attention or agentic pipelines; however, our evaluation reveals they frequently suffer from \textit{prompt bleeding} and \textit{identity amnesia}.
 
 \subsection{The Flaws of Legacy Evaluation in T2MSV}
-Current benchmarks rely on three types of metrics that we argue are ill-suited for T2MSV:
+Current benchmark suites rely on three paradigms that we argue are fundamentally ill-suited for the cinematic grammar of T2MSV:
 
-\textbf{1. The Global Similarity Paradox:} Relying on holistic CLIP similarity penalizes correct behavior. If a model accurately executes a semantic shift (Track S), the holistic similarity drops, causing the model to be penalized for following instructions. We resolve this by decoupling the subject via DINOv2~\cite{oquab2023dinov2} masking.
+\paragraph{The Global Similarity Paradox.} Relying on holistic CLIP similarity penalizes correct generative behavior. If a model accurately executes a semantic shift (Track S), the holistic structural similarity artificially drops, causing the model to be penalized for strictly following instructions. We resolve this by decoupling the subject via DINOv2~\cite{oquab2023dinov2} masking.
 
-\textbf{2. The Uniform Continuity Bias:} Standard temporal metrics treat intentional cinematic "cuts" as visual artifacts. We introduce Track-aware Sharpness, rewarding high sharpness only when a shot transition is explicitly prompted.
+\paragraph{The Uniform Continuity Bias.} Standard temporal coherence metrics treat all inter-frame differences as errors. In T2MSV, intentional cinematic "cuts" are mandatory. We introduce Track-aware Sharpness, rewarding high perceptual divergence exclusively when a shot transition is prompted.
 
-\textbf{3. VLM-as-a-Judge Limits:} Language models are bad at catching pixel-level "morphing"—where objects melt into one another instead of cutting cleanly. Our mathematical \textbf{DSA} metric provides a more rigorous, objective measure of independent adherence.
+\paragraph{VLM-as-a-Judge Limits.} Vision-Language Models (VLMs) often lack the granular spatial sensitivity required to detect pixel-level artifacts, such as "morphing"—where objects unnaturally fuse into one another instead of executing clean cinematic cuts. To overcome this, our mathematical \textbf{DSA} metric provides a rigorous, objective measure of independent prompt adherence.

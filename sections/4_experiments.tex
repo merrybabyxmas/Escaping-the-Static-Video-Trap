@@ -18,10 +18,10 @@ Our evaluation on Dynamic-MSV-Bench reveals a systematic failure in current vide
 \end{figure*}
 
 \subsection{Group 1: Foundation T2V Models and the Static Trap}
-Foundation models (e.g., CogVideoX, LTX-Video, SVD) exhibit the raw limits of spatiotemporal priors. They achieve high Subject Consistency (>0.80) but catastrophically low Background Diversity (<0.10) in Track S. Their upgraded \textbf{DSA} scores remain near $0.02$, proving they generate a single static scene regardless of narrative instructions. This results in the uniform probability distribution seen in Fig.~\ref{fig:dsa_heatmaps}(A).
+Foundation models (e.g., CogVideoX, LTX-Video, SVD, ModelScope) exhibit the raw limits of current spatiotemporal priors. They achieve high Subject Consistency (>0.80) but exhibit severely limited Background Diversity (<0.14) in Track S. Most critically, their rigorous \textbf{DSA} scores remain near 0.02, proving they generate a single static scene regardless of narrative instructions. This failure explicitly results in the uniform probability distribution previously seen in Figure~\ref{fig:dsa_heatmaps}(A).
 
 \subsection{Group 2: T2MSV Frameworks and the Trade-off Dilemma}
-Specialized frameworks like StoryDiffusion successfully break out of the Static Trap, achieving higher Background Diversity in Track S. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets, leading to \textit{Identity Amnesia}, visualized by the Pareto frontier in Figure~\ref{fig:scatter}. 
+Specialized frameworks (e.g., StoryDiffusion, FreeNoise, AnimateDiff) successfully break out of the Static Trap, achieving higher Background Diversity in Track S. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets, leading to \textit{Identity Amnesia}. This fundamental trade-off is quantitatively visualized by the Pareto frontier in Figure~\ref{fig:scatter}. 
 
 \begin{figure}[ht]
     \centering
@@ -31,53 +31,61 @@ Specialized frameworks like StoryDiffusion successfully break out of the Static 
 \end{figure}
 
 \subsection{The "Double-Kill" and the Context Paradox}
-Our evaluation exposes a fascinating paradox: a metric's value is deeply context-dependent. As visualized by the connecting lines in Figure~\ref{fig:scatter}, models exhibit a significant "migration" between failure modes. For instance, CogVideoX exhibits exceptionally low Background Diversity in both tracks. In Track M, traditional evaluators might misinterpret this as excellent spatial continuity. However, our dual-track analysis reveals the truth: the same model's low diversity in Track S proves it is merely trapped in static generation. 
+Our evaluation exposes a fascinating paradox: a metric's value is deeply context-dependent. As visualized by the connecting lines in Figure~\ref{fig:scatter}, models exhibit a significant "migration" between failure modes depending on the requested scenario. 
 
-Conversely, StoryDiffusion shows a "dynamics-at-all-costs" behavior; while it achieves some narrative shift in Track S, it fails to "calm down" in Track M, leading to unwanted background hallucination. This multi-track migration confirms that achieving high-quality T2MSV requires \textbf{Decoupled Dynamics}—the ability to selectively engage or disengage motion priors while strictly preserving identity.
+For instance, CogVideoX exhibits exceptionally low Background Diversity in both tracks. In Track M, traditional evaluators might misinterpret this as excellent spatial continuity. However, our dual-track analysis reveals the underlying truth: the exact same model's low diversity in Track S proves it is merely trapped in static generation. 
+
+Conversely, StoryDiffusion shows a "dynamics-at-all-costs" behavior; while it achieves an effective narrative shift in Track S, it fails to constrain its generative variance in Track M, leading to unwanted background hallucination. This multi-track migration confirms that achieving high-fidelity T2MSV requires \textbf{Decoupled Dynamics}—the architectural ability to selectively engage or disengage motion priors while strictly preserving identity.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{figures/fig4_filmstrip.pdf}
-    \caption{Qualitative comparison on Track M. The "Static Trap" (Top Row) mimics continuity through total lack of motion (DSA $\approx 0$). Specialized frameworks (Bottom Row) attempt motion but ignore the specific "Panning" vs. "Zooming" instructions (Low DSA). Both current paradigms fail to execute controlled multi-shot motion.}
+    \caption{Qualitative comparison on Track M. The "Static Trap" (Top Row) mimics continuity through a total lack of motion (DSA $\approx 0$). Specialized frameworks (Bottom Row) attempt motion but ignore the specific "Panning" vs. "Zooming" instructions (Low DSA). Both current paradigms fail to execute controlled multi-shot motion.}
     \label{fig:qualitative}
 \end{figure}
 
 \begin{table*}[t]
 \centering
-\caption{Main Results on Track S (Semantic Leap). (Golden Rule: All metrics should be $\uparrow$. Best in \textbf{bold}.)}
+\caption{Main Results on Track S (Semantic Leap). Models are grouped by architecture category to highlight the inherent Trade-off Dilemma. (Evaluation Desiderata: All metrics should be $\uparrow$. Best in \textbf{bold}.)}
 \label{tab:main_results_track_s}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{ll|cccc}
 \toprule
 \textbf{Category} & \textbf{Method} & \textbf{Subj. Cons.} $\uparrow$ & \textbf{BG Div.} $\uparrow$ & \textbf{DSA} $\uparrow$ & \textbf{Sharpness} $\uparrow$ \\
 \midrule
-Framework & AnimateDiff & 0.816 & 0.138 & 0.023 & 0.485 \\
-Foundation & CogVideoX & 0.902 & 0.073 & 0.045 & 0.262 \\
-Framework & FreeNoise & 0.528 & 0.354 & 0.032 & \textbf{0.893} \\
-Foundation & LTX-Video & \textbf{0.951} & 0.037 & 0.024 & 0.132 \\
-Foundation & ModelScope & 0.851 & 0.112 & 0.031 & 0.352 \\
-Foundation & SVD & 0.816 & 0.138 & 0.020 & 0.102 \\
-Framework & StoryDiffusion & 0.443 & \textbf{0.418} & \textbf{0.222} & 0.702 \\
+\multirow{4}{*}{Foundation T2V} 
+& CogVideoX & 0.902 & 0.073 & 0.045 & 0.262 \\
+& LTX-Video & \textbf{0.951} & 0.037 & 0.024 & 0.132 \\
+& ModelScope & 0.851 & 0.112 & 0.031 & 0.352 \\
+& SVD & 0.816 & 0.138 & 0.020 & 0.102 \\
+\midrule
+\multirow{3}{*}{T2MSV Frameworks}
+& AnimateDiff & 0.816 & 0.138 & 0.023 & 0.485 \\
+& FreeNoise & 0.528 & 0.354 & 0.032 & \textbf{0.893} \\
+& StoryDiffusion & 0.443 & \textbf{0.418} & \textbf{0.222} & 0.702 \\
 \bottomrule
 \end{tabular}}
 \end{table*}
 
 \begin{table*}[t]
 \centering
-\caption{Main Results on Track M (Motion Continuity). (Golden Rule: Cons. $\uparrow$, Div. $\downarrow$, DSA $\uparrow$, Sharpness $\downarrow$. Best in \textbf{bold}.)}
+\caption{Main Results on Track M (Motion Continuity). (Evaluation Desiderata: Cons. $\uparrow$, Div. $\downarrow$, DSA $\uparrow$, Sharpness $\downarrow$. Best in \textbf{bold}.)}
 \label{tab:main_results_track_m}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{ll|cccc}
 \toprule
 \textbf{Category} & \textbf{Method} & \textbf{Subj. Cons.} $\uparrow$ & \textbf{BG Div.} $\downarrow$ & \textbf{DSA} $\uparrow$ & \textbf{Sharpness} $\downarrow$ \\
 \midrule
-Framework & AnimateDiff & 0.765 & 0.176 & 0.017 & 0.530 \\
-Foundation & CogVideoX & \textbf{0.939} & \textbf{0.046} & 0.020 & 0.227 \\
-Framework & FreeNoise & 0.565 & 0.326 & 0.020 & 0.808 \\
-Foundation & LTX-Video & 0.885 & 0.086 & 0.010 & 0.296 \\
-Foundation & ModelScope & 0.822 & 0.134 & 0.014 & 0.385 \\
-Foundation & SVD & 0.852 & 0.111 & 0.012 & \textbf{0.064} \\
-Framework & StoryDiffusion & 0.377 & 0.467 & \textbf{0.060} & 0.710 \\
+\multirow{4}{*}{Foundation T2V}
+& CogVideoX & \textbf{0.939} & \textbf{0.046} & 0.020 & 0.227 \\
+& LTX-Video & 0.885 & 0.086 & 0.010 & 0.296 \\
+& ModelScope & 0.822 & 0.134 & 0.014 & 0.385 \\
+& SVD & 0.852 & 0.111 & 0.012 & \textbf{0.064} \\
+\midrule
+\multirow{3}{*}{T2MSV Frameworks}
+& AnimateDiff & 0.765 & 0.176 & 0.017 & 0.530 \\
+& FreeNoise & 0.565 & 0.326 & 0.020 & 0.808 \\
+& StoryDiffusion & 0.377 & 0.467 & \textbf{0.060} & 0.710 \\
 \bottomrule
 \end{tabular}}
 \end{table*}
