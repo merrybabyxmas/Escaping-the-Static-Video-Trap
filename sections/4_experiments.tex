@@ -1,9 +1,9 @@
 \section{Experiments and Unveiling the Blind Spots}
 \label{sec:experiments}
 
-Our evaluation on Dynamic-MSV-Bench reveals a systematic failure in current video generation architectures. To properly diagnose these failures, we categorized the evaluated baselines into two distinct groups: \textbf{Group 1: Foundation T2V Models} and \textbf{Group 2: Specialized T2MSV Frameworks}.
+To empirically validate our benchmark and diagnose systemic architectural failures, we conduct an exhaustive evaluation of current video generation models. We categorize our baselines into two distinct paradigms: \textbf{Group 1: Foundation T2V Models} (e.g., CogVideoX, LTX-Video, ModelScope, SVD) and \textbf{Group 2: Specialized T2MSV Frameworks} (e.g., AnimateDiff, FreeNoise, StoryDiffusion). 
 
-\begin{figure*}[ht]
+\begin{figure*}[t]
     \centering
     \begin{subfigure}{0.48\linewidth}
         \includegraphics[width=\linewidth]{figures/radar_chart_set_a.pdf}
@@ -13,29 +13,26 @@ Our evaluation on Dynamic-MSV-Bench reveals a systematic failure in current vide
         \includegraphics[width=\linewidth]{figures/radar_chart_set_b.pdf}
         \caption{Track M: Motion Continuity}
     \end{subfigure}
-    \caption{Radar Charts of Model Performance. In \textbf{Track S}, an ideal model would form a large diamond. In \textbf{Track M}, we plot inverted axes for Diversity and Sharpness ($1-x$) such that a large area consistently represents high performance. Current models fail to achieve the target horizontal "bowtie" geometry in Track M due to near-zero instruction adherence.}
+    \caption{Radar Charts of Model Performance. In \textbf{Track S}, an ideal model forms a large maximal diamond. In \textbf{Track M}, we plot inverted axes for Diversity and Sharpness ($1-x$) such that a maximal area consistently represents high performance. Current state-of-the-art models fail to achieve the target horizontal "bowtie" geometry in Track M due to near-zero instruction adherence.}
     \label{fig:radar}
 \end{figure*}
 
-\subsection{Group 1: Foundation T2V Models and the Static Trap}
-Foundation models (e.g., CogVideoX, LTX-Video, SVD, ModelScope) exhibit the raw limits of current spatiotemporal priors. They achieve high Subject Consistency (>0.80) but exhibit severely limited Background Diversity (<0.14) in Track S. Most critically, their rigorous \textbf{DSA} scores remain near 0.02, proving they generate a single static scene regardless of narrative instructions. This failure explicitly results in the uniform probability distribution previously seen in Figure~\ref{fig:dsa_heatmaps}(A).
+\subsection{Quantitative Results: The Double-Kill Dilemma}
+Our quantitative results, presented in Table~\ref{tab:main_results_track_s} and Table~\ref{tab:main_results_track_m}, reveal that neither paradigm effectively solves the multi-shot generation problem. Foundation models (Group 1) exhibit the raw limits of current spatiotemporal priors. While they achieve high Subject Consistency (>0.80), they exhibit severely limited Background Diversity (<0.14) in Track S. Most critically, their rigorous \textbf{DSA} scores remain near 0.02, proving they generate a single static scene regardless of narrative instructions. This failure explicitly results in the uniform probability distribution previously seen in Figure~\ref{fig:dsa_heatmaps}(A).
 
-\subsection{Group 2: T2MSV Frameworks and the Trade-off Dilemma}
-Specialized frameworks (e.g., StoryDiffusion, FreeNoise, AnimateDiff) successfully break out of the Static Trap, achieving higher Background Diversity in Track S. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets, leading to \textit{Identity Amnesia}. This fundamental trade-off is quantitatively visualized by the Pareto frontier in Figure~\ref{fig:scatter}. 
+Conversely, specialized inference frameworks (Group 2) successfully break out of the Static Trap, achieving higher Background Diversity in Track S. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets, leading to \textit{Identity Amnesia}. This fundamental trade-off is quantitatively visualized by the Pareto frontier in Figure~\ref{fig:scatter}. 
 
-\begin{figure}[ht]
+\begin{figure}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/tradeoff_scatter.pdf}
     \caption{The Identity-Dynamics Pareto Frontier: \textbf{Track S} (Circles) vs. \textbf{Track M} (Crosses). Connecting lines represent the shift of individual models between the two stress-test tracks. The ideal top-right goal remains unoccupied, as models either collapse into the Static Trap (top-left) or suffer from Identity Amnesia/Hallucination (bottom-right). Dot size represents DSA score.}
     \label{fig:scatter}
 \end{figure}
 
-\subsection{The "Double-Kill" and the Context Paradox}
-Our evaluation exposes a fascinating paradox: a metric's value is deeply context-dependent. As visualized by the connecting lines in Figure~\ref{fig:scatter}, models exhibit a significant "migration" between failure modes depending on the requested scenario. 
+\subsection{Qualitative Analysis: Multi-track Migration and Paradoxes}
+Our evaluation exposes a fascinating paradox: a generative metric's intrinsic value is deeply context-dependent. As visualized by the connecting lines in Figure~\ref{fig:scatter}, models exhibit a significant "migration" between failure modes depending on the requested scenario. For instance, CogVideoX exhibits exceptionally low Background Diversity in both tracks. In Track M, traditional evaluators might mistakenly interpret this as excellent spatial continuity. However, our dual-track analysis reveals the underlying truth: the exact same model's low diversity in Track S proves it is merely trapped in static generation. 
 
-For instance, CogVideoX exhibits exceptionally low Background Diversity in both tracks. In Track M, traditional evaluators might misinterpret this as excellent spatial continuity. However, our dual-track analysis reveals the underlying truth: the exact same model's low diversity in Track S proves it is merely trapped in static generation. 
-
-Conversely, StoryDiffusion shows a "dynamics-at-all-costs" behavior; while it achieves an effective narrative shift in Track S, it fails to constrain its generative variance in Track M, leading to unwanted background hallucination. This multi-track migration confirms that achieving high-fidelity T2MSV requires \textbf{Decoupled Dynamics}—the architectural ability to selectively engage or disengage motion priors while strictly preserving identity.
+Conversely, StoryDiffusion demonstrates a "dynamics-at-all-costs" behavior. While it achieves an effective narrative shift in Track S, it critically fails to constrain its generative variance in Track M, leading to unwanted background hallucination. As shown in the qualitative filmstrips in Figure~\ref{fig:qualitative}, both paradigms fail to execute controlled multi-shot motion. This multi-track migration confirms that achieving high-fidelity T2MSV requires \textbf{Decoupled Dynamics}—the architectural ability to selectively engage or disengage motion priors while strictly preserving identity.
 
 \begin{figure}[ht]
     \centering
