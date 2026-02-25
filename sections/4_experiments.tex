@@ -26,12 +26,14 @@ Specialized frameworks like StoryDiffusion successfully break out of the Static 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{figures/tradeoff_scatter.pdf}
-    \caption{The trade-off between consistency and dynamics on Track S. Current SOTA models cluster in the top-left (Static Trap) or bottom-right (Amnesia), leaving the top-right goal vacant. Dot size represents Diagonal Semantic Alignment (DSA).}
+    \caption{The Identity-Dynamics Pareto Frontier: \textbf{Track S} (Circles) vs. \textbf{Track M} (Crosses). Connecting lines represent the shift of individual models between the two stress-test tracks. The ideal top-right goal remains unoccupied, as models either collapse into the Static Trap (top-left) or suffer from Identity Amnesia/Hallucination (bottom-right). Dot size represents DSA score.}
     \label{fig:scatter}
 \end{figure}
 
 \subsection{The "Double-Kill" and the Context Paradox}
-Our evaluation exposes a fascinating paradox: a metric's value is deeply context-dependent. For instance, CogVideoX exhibits exceptionally low Background Diversity. In Track M, traditional evaluators might misinterpret this as excellent spatial continuity. However, our cross-scenario analysis reveals the truth: the same model exhibits the same low diversity in Track S, proving it is merely trapped in static generation. Without the dual-track perspective of Track S and Track M, this critical failure would remain masked.
+Our evaluation exposes a fascinating paradox: a metric's value is deeply context-dependent. As visualized by the connecting lines in Figure~\ref{fig:scatter}, models exhibit a significant "migration" between failure modes. For instance, CogVideoX exhibits exceptionally low Background Diversity in both tracks. In Track M, traditional evaluators might misinterpret this as excellent spatial continuity. However, our dual-track analysis reveals the truth: the same model's low diversity in Track S proves it is merely trapped in static generation. 
+
+Conversely, StoryDiffusion shows a "dynamics-at-all-costs" behavior; while it achieves some narrative shift in Track S, it fails to "calm down" in Track M, leading to unwanted background hallucination. This multi-track migration confirms that achieving high-quality T2MSV requires \textbf{Decoupled Dynamics}—the ability to selectively engage or disengage motion priors while strictly preserving identity.
 
 \begin{figure}[ht]
     \centering
