@@ -1,17 +1,22 @@
 \section{Introduction}
 \label{sec:intro}
 
-The field of video generation has witnessed an unprecedented surge in quality, moving from blurry low-resolution clips to cinematic sequences. However, as we enter the era of \textbf{Text-to-Multi-Shot Video (T2MSV)} generation, where a single text sequence describes a complex narrative with multiple camera angles and scene transitions, a critical blind spot has emerged in our evaluation methodologies. 
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig1.png}
+    \caption{The dilemma of current T2MSV models. Existing models typically fall into one of two failure modes given multi-shot prompts requiring semantic shifts: (A) The "Static Trap," where models maintain high consistency scores by generating near-static imagery, ignoring background change instructions. (B) "Amnesia," where models successfully change backgrounds but fail to preserve subject identity. Our benchmark is the first to quantify these distinct failure modes decoupling identity from dynamics.}
+    \label{fig:teaser}
+\end{figure}
 
-Standard metrics such as Fréchet Video Distance (FVD) and holistic CLIP-based similarity scores were designed for single-shot coherence. When applied to multi-shot scenarios, these metrics suffer from what we define as the \textbf{Global Similarity Paradox}: they reward models for maintaining visual stasis. In a narrative sequence that demands a transition from a rainforest to outer space, a model that incorrectly remains in the rainforest will actually achieve a \textit{higher} consistency score than a model that correctly executes the transition. This creates an incentive for models to fall into the \textbf{Static Video Trap}—generating "glorified slideshows" where nothing changes, bypassing the difficulty of narrative rendering.
+The field of video generation has transitioned from synthesizing blurry, single-shot clips to attempting complex, cinematic multi-shot narratives (Text-to-Multi-Shot Video, T2MSV). However, evaluation methodologies remain anchored in a single-shot mindset. Existing metrics, such as Fréchet Video Distance (FVD) or frame-wise CLIP similarity, evaluate videos holistically. In multi-shot environments, this holistic approach creates a fatal vulnerability: it inadvertently rewards models that generate entirely static, unchanging videos, even when prompted to execute dynamic scene transitions.
 
-In this work, we argue that T2MSV is fundamentally about the management of \textit{intended discontinuities}. We introduce \textbf{Dynamic-MSV-Bench}, a large-scale benchmark that isolates two primary axes of multi-shot performance: \textbf{Semantic Shift} (Track A), which tests the model's ability to jump between environments without losing subject identity, and \textbf{Motion Control} (Track B), which tests spatial integrity during camera transitions.
+We define this phenomenon as the \textbf{Static Video Trap}. When a prompt demands a sequence jumping from a "rainforest" to "outer space," a model that stubbornly remains in the rainforest will score artificially high on traditional temporal consistency metrics. Conversely, models attempting to dynamically execute the transition often suffer from \textbf{Identity Amnesia}, losing the features of the main subject.
 
-Our contributions are three-fold:
+In this work, we argue that T2MSV requires the precise management of \textit{intended discontinuities}. We introduce \textbf{Dynamic-MSV-Bench}, a comprehensive evaluation framework that disentangles subject identity from environmental dynamics. Our benchmark splits evaluation into two critical tracks: \textbf{Semantic Shift} (Track A), which demands high dynamics and high identity, and \textbf{Motion Control} (Track B), which demands high identity but fixed spatial backgrounds.
+
+Our core contributions are:
 \begin{itemize}
-    \item We define and mathematically formalize the \textbf{Static Video Trap} and the \textbf{Amnesia Trap}, providing a diagnostic lens for the systematic failures of current T2V architectures.
-    \item We propose a decoupled evaluation framework featuring the \textbf{Diagonal Semantic Alignment (DSA)} metric. By utilizing column-wise softmax normalization, DSA provides a strict zero-point for static videos, ensuring that only models capable of distinguishing between distinct shot-specific instructions are rewarded.
-    \item We conduct a comprehensive "stress test" of 9 state-of-the-art models, revealing that none can yet solve the "Double-Kill" dilemma of multi-shot generation.
+    \item We expose the \textbf{Static Trap} and \textbf{Amnesia Trap}, highlighting the flaws of legacy temporal metrics that penalize intended cinematic cuts and semantic shifts.
+    \item We propose a 4D decoupled evaluation pipeline, introducing \textbf{Diagonal Semantic Alignment (DSA)}, a mathematically rigorous metric using column-wise softmax normalization that assigns a strict zero score to static, instruction-ignoring videos.
+    \item We conduct an exhaustive evaluation of 9 SOTA models, categorically demonstrating that neither Foundation T2V models nor specialized T2MSV inference frameworks have solved the fundamental "Double-Kill" dilemma of multi-shot generation.
 \end{itemize}
-
-Through this framework, we provide the research community with a clear Pareto frontier for narrative video generation, highlighting the urgent need for decoupled motion-identity priors.

@@ -1,25 +1,32 @@
-\section{Dynamic-MSV-Bench and Metrics}
+\section{Dynamic-MSV-Bench and Methodology}
 \label{sec:benchmark}
 
-We propose \textbf{Dynamic-MSV-Bench}, comprising 100 high-fidelity multi-shot scenarios across two distinct tracks designed to push current diffusion architectures to their limits.
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig2.png}
+    \caption{Overview of our Decoupled 4D Evaluation Framework. Unlike holistic metrics like FVD, we process the input video through three independent streams to measure Subject Identity, Background Dynamics/Continuity, and Instruction Following (Diagonal Alignment) separately. This decoupling allows for scenario-aware evaluation (Set A vs. Set B).}
+    \label{fig:framework}
+\end{figure*}
+
+We propose the \textbf{Dynamic-MSV-Bench}, which categorizes multi-shot prompts into two extreme stress-test scenarios to expose the "Double-Kill" dilemma of current models.
 
 \subsection{Track A: Semantic Shift (Narrative Diversity)}
-Track A evaluates the model's ability to maintain a consistent subject while drastically changing the environment (e.g., from an underwater ruin to a Himalayan peak). 
-\textbf{Golden Rule for Track A:} HIGH Background Diversity, HIGH Cut Sharpness, and HIGH Subject Consistency. A low diversity score in this track identifies the \textbf{Static Trap}.
+This track evaluates the model's ability to maintain a consistent subject while drastically shifting the semantic environment (e.g., from a dense forest to outer space). 
+\textbf{Golden Rule for Track A:} HIGH Subject Consistency, HIGH Background Diversity, HIGH Cut Sharpness, and HIGH Diagonal Alignment. A model that scores low on Diversity here has fallen into the \textbf{Static Trap}.
 
 \subsection{Track B: Motion Control (Spatial Integrity)}
-Track B focuses on camera dynamics (Pan, Zoom, Tilt) within a fixed environment. This tests the model's spatial reasoning and its ability to follow fine-grained physical instructions.
-\textbf{Golden Rule for Track B:} LOW Background Diversity, LOW Cut Sharpness (smooth transitions), and HIGH Subject Consistency. A high diversity score here indicates \textbf{Background Hallucination}.
+This track tests whether a model can execute continuous physical instructions (e.g., Panning, Zooming) while keeping the background pixel-perfectly stable.
+\textbf{Golden Rule for Track B:} HIGH Subject Consistency, LOW Background Diversity, LOW Cut Sharpness, and HIGH Diagonal Alignment. A model that scores high on Diversity here suffers from \textbf{Background Hallucination}.
 
 \subsection{The 4D Decoupled Metrics}
-Our framework utilizes four indices to quantify performance:
+Our framework evaluates videos through three independent streams (Identity, Dynamics, Instruction):
 \begin{enumerate}
-    \item \textbf{Subject Consistency ($\mathcal{C}_{subj}$):} DINOv2~\cite{oquab2023dinov2} based similarity of masked subject regions across $K$ shots.
-    \item \textbf{Background Diversity ($\mathcal{D}_{bg}$):} Variance of CLIP~\cite{radford2021learning} or DINO embeddings in the environment region.
-    \item \textbf{Cut-Transition Sharpness ($\mathcal{S}_{cut}$):} Normalized LPIPS~\cite{zhang2018perceptual} distance peaks at shot boundaries.
+    \item \textbf{Subject Consistency ($\mathcal{C}_{subj}$):} DINOv2~\cite{oquab2023dinov2} similarity of bounding-box masked subjects across shots.
+    \item \textbf{Background Diversity ($\mathcal{D}_{bg}$):} Inverse cosine similarity of the isolated background environment.
+    \item \textbf{Cut-Transition Sharpness ($\mathcal{S}_{cut}$):} The peak LPIPS~\cite{zhang2018perceptual} distance at the prompted shot boundaries, penalizing blurry morphing.
     \item \textbf{Diagonal Semantic Alignment (DSA):}
-    Our core novelty, DSA, uses column-wise softmax probabilities:
+    Our core novelty, DSA, uses a $K \times K$ CLIP~\cite{radford2021learning} similarity matrix $M$ between shots and prompts. To penalize prompt-bleeding and static generation, we apply column-wise softmax with logit scaling $\tau$:
     $$P_{i,j} = \frac{\exp(\tau \cdot M_{i,j})}{\sum_{k=1}^{K} \exp(\tau \cdot M_{k,j})}$$
     $$DSA = \frac{\left( \frac{1}{K} \sum_{i=1}^{K} P_{i,i} \right) - \frac{1}{K}}{1 - \frac{1}{K}}$$
-    This formulation ensures that a static video, where all shots are identical, yields a DSA of exactly 0.0.
+    By subtracting the random baseline expectation ($1/K$), DSA mathematically guarantees a score of $0.0$ for any model stuck in the Static Trap (generating identical shots).
 \end{enumerate}

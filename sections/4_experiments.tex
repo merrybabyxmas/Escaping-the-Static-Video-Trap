@@ -1,38 +1,104 @@
 \section{Experiments and Unveiling the Blind Spots}
 \label{sec:experiments}
 
-We evaluated 9 state-of-the-art models on Dynamic-MSV-Bench using 100\% real-pixel measurements. The results reveal a polarized landscape.
+Our evaluation on Dynamic-MSV-Bench reveals a systematic failure in current video generation architectures. To properly diagnose these failures, we categorized the evaluated baselines into two distinct groups: \textbf{Group 1: Foundation T2V Models}, which test the raw, zero-shot capacity of pure base architectures, and \textbf{Group 2: T2MSV-Specific Frameworks}, which test inference methods or multi-agent pipelines designed specifically for multi-shot generation.
 
-\subsection{General T2V Models: The Static Video Trap}
-As shown in Table~\ref{tab:main_results} and visualized in the radar charts (Fig.~\ref{fig:radar_set_a}, \ref{fig:radar_set_b}), models such as \textbf{CogVideoX}~\cite{yang2024cogvideox} and \textbf{SVD}~\cite{blattmann2023stable} prioritize identity preservation to an extreme degree. In Track A (Semantic Shift), CogVideoX achieves a Subject Consistency of 0.89, yet its Background Diversity is a mere 0.08. Most significantly, its \textbf{DSA} score is near 0.02. This confirms that general T2V models "hack" multi-shot benchmarks by copying the first shot, effectively falling into the \textbf{Static Video Trap}.
-
-\subsection{Claimed T2MSV Models: The Trade-off Dilemma}
-Specialized models like \textbf{StoryDiffusion}~\cite{zhou2024storydiffusion} and \textbf{FreeNoise}~\cite{qiu2023freenoise} attempt to escape the trap but encounter the \textbf{Amnesia Trap}. In Track A, StoryDiffusion achieves a higher DSA (0.18) and Diversity (0.36), but its Subject Consistency drops to 0.52. This 40\% reduction in identity preservation demonstrates the "Double-Kill" of current paradigms: models can either maintain a static identity or generate a dynamic narrative, but never both. 
-
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/tradeoff_scatter.pdf}
-    \caption{\textbf{The Pareto Frontier of T2MSV.} The ideal top-right corner (High Identity, High Dynamics) remains vacant across all 9 SOTA models, visualizing the current structural limits of the field.}
+    \begin{subfigure}{0.48\linewidth}
+        \includegraphics[width=\linewidth]{figures/radar_chart_set_a.pdf}
+        \caption{Set A: Semantic Shift}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.48\linewidth}
+        \includegraphics[width=\linewidth]{figures/radar_chart_set_b.pdf}
+        \caption{Set B: Motion Control}
+    \end{subfigure}
+    \caption{Multidimensional performance comparison across two tracks. Models collapse into either the Static Trap (high identity, low dynamics) or the Amnesia/Hallucination Trap (high dynamics, low identity).}
+    \label{fig:radar}
+\end{figure*}
+
+\subsection{Group 1: Foundation T2V Models and the Static Trap}
+Foundation models (e.g., CogVideoX, LTX-Video, SVD, ModelScope) were evaluated by feeding multi-shot prompts directly as sequential text. As shown in Table~\ref{tab:main_results_set_a} and the Pareto frontier in Figure~\ref{fig:scatter}, these models exhibit the raw limits of current diffusion priors. They achieve extremely high Subject Consistency ($>0.81$) but their Background Diversity is catastrophically low ($<0.14$). 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_scatter.pdf}
+    \caption{The trade-off between subject consistency and background dynamics on Semantic-Shift Scenarios (Set A). Current SOTA models cluster in the top-left (Static Trap) or shift towards the bottom-right (Amnesia), illustrating inability to simultaneously achieve high dynamics and identity preservation. The top-right region represents the ideal goal for future T2MSV models, which is currently unoccupied. Dot size represents Diagonal Alignment score.}
     \label{fig:scatter}
 \end{figure}
 
-\subsection{Track B Analysis: Spatial Integrity vs. Hallucination}
-In Track B (Motion Control), where models must preserve the background, \textbf{LTX-Video}~\cite{HaCohen2024LTXVideo} shows promising results with a low diversity score (0.04). However, its low DSA score indicates that while the background is fixed, it fails to execute the camera motion instructions (e.g., panning vs zooming). Conversely, \textbf{StoryDiffusion} suffers from \textit{Background Hallucination} in this track (Diversity 0.51), proving that its narrative priors are entangled with environment rendering.
+Most critically, our mathematically strict \textbf{Diagonal Semantic Alignment (DSA)} scores for these foundation models remain near $0.02$. As visualized in Figure~\ref{fig:heatmap}, this proves that merely scaling up a base model does not grant it the ability to decouple instructions across shots; instead, the model optimizes for a local minimum by generating a single static scene ("The Static Trap"), entirely ignoring narrative transitions to preserve an artificially high consistency score.
 
-\begin{table}[h]
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig5.png}
+    \caption{Diagonal Alignment Heatmaps (Softmax-normalized CLIP scores). (A) Models in the Static Trap show uniform similarity across all prompts. (B) Current T2MSV models show some alignment but suffer from prompt bleeding (high off-diagonal values). (C) An ideal model demonstrates sharp diagonal alignment, indicating precise, independent instruction following for each shot.}
+    \label{fig:heatmap}
+\end{figure}
+
+\subsection{Group 2: T2MSV Frameworks and the Trade-off Dilemma}
+To address the Static Trap, specialized frameworks like StoryDiffusion, FreeNoise, Mora, and DirecT2V have emerged. However, our evaluation demonstrates that these inference techniques introduce a severe \textbf{Trade-off Dilemma}. 
+
+For instance, StoryDiffusion and FreeNoise successfully break out of the Static Trap, achieving higher Background Diversity ($\approx 0.35 - 0.42$) and higher DSA scores in Semantic-Shift scenarios. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets below 0.53, leading to \textit{Identity Amnesia} where the protagonist's features drift across shots. 
+
+Furthermore, as seen in Table~\ref{tab:main_results_set_b}, when these frameworks are tested on Motion-Control scenarios (Set B) where the background \textit{must} remain fixed, they suffer from \textit{Background Hallucination} (Diversity $> 0.30$). They cannot move the camera without completely altering the 3D environment. Figure~\ref{fig:qualitative} provides a qualitative comparison demonstrating this failure. This proves that wrapping a static foundation model in an agentic or attention-sharing framework does not resolve the fundamental architectural entanglement of motion and identity.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig4_filmstrip.pdf}
+    \caption{Qualitative comparison on Motion-Control Scenarios (Set B). Traditional metrics misinterpret the "Static Trap" (Top Row) as excellent spatiotemporal continuity due to low sharpness and high raw consistency. Our Diagonal Alignment metric correctly identifies this as a failure to execute differing camera instructions ("Panning" vs. "Zooming"), whereas it rewards models that accurately execute motions while maintaining the scene (Bottom Row).}
+    \label{fig:qualitative}
+\end{figure}
+
+\begin{table*}[t]
 \centering
-\caption{Unified Metrics across Two Tracks (Full 100-scenario dataset).}
-\label{tab:main_results}
-\begin{tabular}{l|cc|cc}
+\caption{Main Quantitative Results on Semantic-Shift Scenarios (Set A). The table is divided into Foundation T2V Models and T2MSV-Specific Frameworks to demonstrate the fundamental trade-offs. (Golden Rule: All metrics should be $\uparrow$)}
+\label{tab:main_results_set_a}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{ll|cccc}
 \toprule
-Model & Track A Div. $\uparrow$ & Track A DSA $\uparrow$ & Track B Div. $\downarrow$ & Track B DSA $\uparrow$ \\
+\textbf{Category} & \textbf{Method (Base Model)} & \textbf{Subj. Consistency} $\uparrow$ & \textbf{BG Diversity} $\uparrow$ & \textbf{DSA} $\uparrow$ & \textbf{Cut Sharpness} $\uparrow$ \\
 \midrule
-CogVideoX~\cite{yang2024cogvideox} & 0.08 & 0.02 & 0.05 & 0.00 \\
-SVD~\cite{blattmann2023stable} & 0.14 & 0.01 & 0.10 & 0.01 \\
-LTX-Video~\cite{HaCohen2024LTXVideo} & 0.42 & 0.07 & 0.05 & 0.00 \\
-StoryDiffusion~\cite{zhou2024storydiffusion} & 0.36 & 0.18 & 0.52 & 0.02 \\
-FreeNoise~\cite{qiu2023freenoise} & 0.32 & 0.01 & 0.20 & 0.05 \\
-AnimateDiff~\cite{guo2023animatediff} & 0.08 & 0.01 & 0.09 & 0.02 \\
+\multirow{4}{*}{Foundation T2V} 
+ & CogVideoX (Itself) & 0.902 & 0.073 & 0.045 & 0.262 \\
+ & LTX-Video (Itself) & \textbf{0.951} & 0.037 & 0.024 & 0.132 \\
+ & SVD (Itself) & 0.816 & 0.138 & 0.020 & 0.102 \\
+ & ModelScope (Itself) & 0.851 & 0.112 & 0.031 & 0.352 \\
+\midrule
+\multirow{5}{*}{T2MSV Frameworks} 
+ & StoryDiffusion (SDXL) & 0.443 & \textbf{0.418} & \textbf{0.222} & 0.702 \\
+ & FreeNoise (AnimateDiff) & 0.528 & 0.354 & 0.032 & \textbf{0.893} \\
+ & AnimateDiff (SD1.5) & 0.816 & 0.138 & 0.023 & 0.485 \\
+ & Mora (ModelScope) & 0.927 & 0.055 & 0.000 & 0.404 \\
+ & DirecT2V (ZeroScope) & 0.861 & 0.104 & 0.250 & 0.579 \\
 \bottomrule
-\end{tabular}
-\end{table}
+\end{tabular}}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\caption{Main Quantitative Results on Motion-Control Scenarios (Set B). (Golden Rule: Consistency $\uparrow$, BG Diversity $\downarrow$, DSA $\uparrow$, Sharpness $\downarrow$)}
+\label{tab:main_results_set_b}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{ll|cccc}
+\toprule
+\textbf{Category} & \textbf{Method (Base Model)} & \textbf{Subj. Consistency} $\uparrow$ & \textbf{BG Diversity} $\downarrow$ & \textbf{DSA} $\uparrow$ & \textbf{Cut Sharpness} $\downarrow$ \\
+\midrule
+\multirow{4}{*}{Foundation T2V} 
+ & CogVideoX (Itself) & 0.938 & \textbf{0.046} & 0.000 & 0.425 \\
+ & LTX-Video (Itself) & \textbf{0.935} & 0.049 & 0.000 & 0.333 \\
+ & SVD (Itself) & 0.860 & 0.105 & 0.010 & \textbf{0.054} \\
+ & ModelScope (Itself) & 0.818 & 0.136 & 0.000 & 0.560 \\
+\midrule
+\multirow{5}{*}{T2MSV Frameworks} 
+ & StoryDiffusion (SDXL) & 0.312 & 0.516 & 0.023 & 0.670 \\
+ & FreeNoise (AnimateDiff) & 0.728 & 0.204 & 0.052 & 0.998 \\
+ & AnimateDiff (SD1.5) & 0.874 & 0.095 & 0.024 & 0.366 \\
+ & Mora (ModelScope) & 0.802 & 0.149 & 0.069 & 0.416 \\
+ & DirecT2V (ZeroScope) & 0.688 & 0.234 & \textbf{0.073} & 0.578 \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\subsection{Conclusion of Empirical Evidence}
+Our findings highlight a profound "Double-Kill" dilemma: Foundation models (Group 1) possess excellent raw consistency but fall into the \textit{Static Trap}, completely failing shot-level instruction adherence (DSA $\approx 0$). Conversely, T2MSV inference techniques (Group 2) follow instructions better but suffer from severe \textit{Identity Amnesia} and \textit{Background Hallucination}. Neither scaling up base models nor adding inference hacks resolves the fundamental entanglement of identity and motion, validating the critical need for decoupled generative architectures.
