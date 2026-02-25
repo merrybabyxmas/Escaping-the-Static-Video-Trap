@@ -18,20 +18,20 @@ Our evaluation on Dynamic-MSV-Bench reveals a systematic failure in current vide
 \end{figure*}
 
 \subsection{Group 1: Foundation T2V Models and the Static Trap}
-Foundation models (e.g., CogVideoX, LTX-Video, SVD) exhibit the raw limits of spatiotemporal priors. They achieve high Subject Consistency (>0.80) but catastrophically low Background Diversity (<0.10) in Track S. Their upgraded \textbf{DSA} scores remain near $0.02$, proving they generate a single static scene regardless of narrative instructions.
+Foundation models (e.g., CogVideoX, LTX-Video, SVD) exhibit the raw limits of spatiotemporal priors. They achieve high Subject Consistency (>0.80) but catastrophically low Background Diversity (<0.10) in Track S. Their upgraded \textbf{DSA} scores remain near $0.02$, proving they generate a single static scene regardless of narrative instructions. This results in the uniform probability distribution seen in Fig.~\ref{fig:dsa_heatmaps}(A).
 
 \subsection{Group 2: T2MSV Frameworks and the Trade-off Dilemma}
-Specialized frameworks like StoryDiffusion successfully break out of the Static Trap, achieving higher Background Diversity in Track S. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets, leading to \textit{Identity Amnesia}. 
+Specialized frameworks like StoryDiffusion successfully break out of the Static Trap, achieving higher Background Diversity in Track S. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets, leading to \textit{Identity Amnesia}, visualized by the Pareto frontier in Figure~\ref{fig:scatter}. 
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{figures/tradeoff_scatter.pdf}
-    \caption{The trade-off between consistency and dynamics on Track S. Current SOTA models cluster in the top-left (Static Trap) or bottom-right (Amnesia), leaving the top-right goal vacant.}
+    \caption{The trade-off between consistency and dynamics on Track S. Current SOTA models cluster in the top-left (Static Trap) or bottom-right (Amnesia), leaving the top-right goal vacant. Dot size represents Diagonal Semantic Alignment (DSA).}
     \label{fig:scatter}
 \end{figure}
 
 \subsection{The "Double-Kill" and the Context Paradox}
-Our evaluation exposes a fascinating paradox: a metric's value is deeply context-dependent. For instance, CogVideoX exhibits exceptionally low Background Diversity. In Track M, traditional evaluators might misinterpret this as excellent spatial continuity. However, our cross-scenario analysis reveals the truth: the same model exhibits the same low diversity in Track S, proving it is merely trapped in static generation. Without the dual-track perspective, this critical failure would remain masked.
+Our evaluation exposes a fascinating paradox: a metric's value is deeply context-dependent. For instance, CogVideoX exhibits exceptionally low Background Diversity. In Track M, traditional evaluators might misinterpret this as excellent spatial continuity. However, our cross-scenario analysis reveals the truth: the same model exhibits the same low diversity in Track S, proving it is merely trapped in static generation. Without the dual-track perspective of Track S and Track M, this critical failure would remain masked.
 
 \begin{figure}[ht]
     \centering
