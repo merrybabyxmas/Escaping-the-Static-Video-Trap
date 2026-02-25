@@ -10,13 +10,17 @@ The field of video generation has transitioned from synthesizing blurry, single-
     \label{fig:teaser}
 \end{figure}
 
-We define this phenomenon as the \textbf{Static Video Trap}. When a prompt demands a sequence jumping from a "rainforest" to "outer space," a model that stubbornly remains in the rainforest will score artificially high on traditional temporal consistency metrics. Conversely, models attempting to dynamically execute the transition often suffer from \textbf{Identity Amnesia}, losing the features of the main subject.
+We define this phenomenon as the \textbf{Static Video Trap}. When a prompt demands a sequence jumping from a "rainforest" to "outer space," a model that stubbornly remains in the rainforest will score artificially high on traditional temporal consistency metrics. This creates the \textbf{Global Similarity Paradox}: metrics reward the failure to transition. Conversely, models attempting to dynamically execute the transition often suffer from \textbf{Identity Amnesia}, losing the features of the main subject.
 
-In this work, we argue that T2MSV requires the precise management of \textit{intended discontinuities}. We introduce \textbf{Dynamic-MSV-Bench}, a comprehensive evaluation framework that disentangles subject identity from environmental dynamics. Our benchmark splits evaluation into two critical tracks: \textbf{Semantic Shift} (Track A), which demands high dynamics and high identity, and \textbf{Motion Control} (Track B), which demands high identity but fixed spatial backgrounds.
+In this work, we argue that T2MSV requires the precise management of \textit{intended discontinuities}. We introduce \textbf{Dynamic-MSV-Bench}, a comprehensive evaluation framework that disentangles subject identity from environmental dynamics across two critical tracks:
+\begin{itemize}
+    \item \textbf{Track S (Semantic Leap):} Tests narrative diversity, requiring radical environment changes while strictly preserving the subject.
+    \item \textbf{Track M (Motion Continuity):} Evaluates spatial integrity, where the background must remain consistent while the camera executes specific motions.
+\end{itemize}
 
 Our core contributions are:
 \begin{itemize}
     \item We expose the \textbf{Static Trap} and \textbf{Amnesia Trap}, highlighting the flaws of legacy temporal metrics that penalize intended cinematic cuts and semantic shifts.
-    \item We propose a 4D decoupled evaluation pipeline, introducing \textbf{Diagonal Semantic Alignment (DSA)}, a mathematically rigorous metric using column-wise softmax normalization that assigns a strict zero score to static, instruction-ignoring videos.
-    \item We conduct an exhaustive evaluation of 9 SOTA models, categorically demonstrating that neither Foundation T2V models nor specialized T2MSV inference frameworks have solved the fundamental "Double-Kill" dilemma of multi-shot generation.
+    \item We propose a 4D decoupled evaluation pipeline, introducing \textbf{Diagonal Semantic Alignment (DSA)}, which assigns a strict zero score to static, instruction-ignoring videos.
+    \item We demonstrate that neither Foundation T2V models nor specialized T2MSV inference frameworks have solved the fundamental "Double-Kill" dilemma of multi-shot generation.
 \end{itemize}

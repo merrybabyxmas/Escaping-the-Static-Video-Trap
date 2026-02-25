@@ -1,14 +1,14 @@
 \section{Related Work}
 \label{sec:related}
 
-\subsection{Specialized T2MSV Frameworks vs. Foundation Models}
-The rapid evolution of diffusion models has bifurcated the field. On one hand, \textbf{Foundation T2V Models} (e.g., CogVideoX~\cite{yang2024cogvideox}, LTX-Video~\cite{HaCohen2024LTXVideo}, SVD~\cite{blattmann2023stable}) scale up massive datasets to learn raw spatiotemporal priors. However, they lack explicit multi-shot conditioning. On the other hand, \textbf{T2MSV-Specific Frameworks} aim to guide these base models for narrative generation. Methods like StoryDiffusion~\cite{zhou2024storydiffusion} leverage consistent self-attention for character tracking, while DirecT2V~\cite{hong2023large} and Mora~\cite{yuan2024mora} utilize LLM-driven multi-agent pipelines to enforce shot boundaries. FreeNoise~\cite{qiu2023freenoise} attempts tuning-free long video extension via noise rescheduling. Despite these efforts, our evaluation reveals they still suffer from \textit{prompt bleeding} and morphing artifacts.
+\subsection{Foundation Models vs. Specialized Frameworks}
+The field has bifurcated into \textbf{Foundation T2V Models} (e.g., CogVideoX~\cite{yang2024cogvideox}, LTX-Video~\cite{HaCohen2024LTXVideo}, SVD~\cite{blattmann2023stable}) and \textbf{Specialized T2MSV Frameworks} (e.g., StoryDiffusion~\cite{zhou2024storydiffusion}, DirecT2V~\cite{hong2023large}, Mora~\cite{yuan2024mora}). While foundation models learn raw spatiotemporal priors, they often lack the explicit control needed for multi-shot narrative. Specialized frameworks attempt to enforce consistency using reference attention or agentic pipelines, but our evaluation reveals they frequently suffer from \textit{prompt bleeding} and \textit{identity amnesia}.
 
 \subsection{The Flaws of Legacy Evaluation in T2MSV}
-Current benchmark suites like VBench~\cite{huang2023vbench} rely on metrics fundamentally misaligned with the cinematic grammar of T2MSV:
+Current benchmarks rely on three types of metrics that we argue are ill-suited for T2MSV:
 
-\textbf{1. The Global Similarity Paradox:} Evaluating character consistency using holistic image similarity (as in StoryDiffusion) leads to a paradox. If a model correctly executes a drastic background shift, the holistic similarity artificially drops. Models are thus penalized for following dynamic instructions. We resolve this by decoupling the subject via DINOv2~\cite{oquab2023dinov2} masking.
+\textbf{1. The Global Similarity Paradox:} Relying on holistic CLIP similarity penalizes correct behavior. If a model accurately executes a semantic shift (Track S), the holistic similarity drops, causing the model to be penalized for following instructions. We resolve this by decoupling the subject via DINOv2~\cite{oquab2023dinov2} masking.
 
-\textbf{2. The Uniform Continuity Bias:} Traditional temporal coherence metrics treat all inter-frame differences as errors. In T2MSV, intentional "cuts" are mandatory. Legacy metrics treat these sharp cinematic transitions as visual artifacts. Our framework evaluates \textit{Cut-Transition Sharpness} using LPIPS~\cite{zhang2018perceptual}, demanding high sharpness during semantic shifts but smooth transitions during continuous camera motions.
+\textbf{2. The Uniform Continuity Bias:} Standard temporal metrics treat intentional cinematic "cuts" as visual artifacts. We introduce Track-aware Sharpness, rewarding high sharpness only when a shot transition is explicitly prompted.
 
-\textbf{3. VLM-as-a-Judge Limits:} While some frameworks use GPT-4V for narrative QA, VLMs struggle to detect pixel-level \textit{morphing}—where objects melt into one another instead of cutting cleanly. To overcome this, our \textbf{DSA} metric leverages CLIP~\cite{radford2021learning} feature matrices to mathematically guarantee shot-level independence.
+\textbf{3. VLM-as-a-Judge Limits:} Language models are bad at catching pixel-level "morphing"—where objects melt into one another instead of cutting cleanly. Our mathematical \textbf{DSA} metric provides a more rigorous, objective measure of independent adherence.
