@@ -1,21 +1,21 @@
 \section{Dynamic-MSV-Bench and Methodology}
 \label{sec:benchmark}
 
-\begin{figure*}[t]
+We propose the \textbf{Dynamic-MSV-Bench}, which categorizes multi-shot prompts into two extreme stress-test scenarios to expose the "Double-Kill" dilemma of current models.
+
+\begin{figure*}[ht]
     \centering
     \includegraphics[width=\textwidth]{figures/fig2.png}
     \caption{Overview of our Decoupled 4D Evaluation Framework. Unlike holistic metrics like FVD, we process the input video through three independent streams to measure Subject Identity, Background Dynamics/Continuity, and Instruction Following (Diagonal Alignment) separately. This decoupling allows for scenario-aware evaluation (Set A vs. Set B).}
     \label{fig:framework}
 \end{figure*}
 
-\begin{figure*}[t]
+\begin{figure*}[ht]
     \centering
     \includegraphics[width=\textwidth]{figures/fig_AB.jpg}
     \caption{Conceptual comparison of our two evaluation tracks. (Left) \textbf{Set A: Semantic Shift} requires radical environment changes while preserving the subject, demanding high diversity and sharp cuts. (Right) \textbf{Set B: Motion Control} requires maintaining a consistent background during camera actions (Panning, Zooming, Tracking), demanding low diversity and smooth spatial continuity. Our DSA metric rewards high instruction adherence in both scenarios.}
     \label{fig:sets_comparison}
 \end{figure*}
-
-We propose the \textbf{Dynamic-MSV-Bench}, which categorizes multi-shot prompts into two extreme stress-test scenarios to expose the "Double-Kill" dilemma of current models.
 
 \subsection{Track A: Semantic Shift (Narrative Diversity)}
 This track evaluates the model's ability to maintain a consistent subject while drastically shifting the semantic environment (e.g., from a dense forest to outer space). 

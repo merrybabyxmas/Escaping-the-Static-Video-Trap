@@ -3,7 +3,7 @@
 
 Our evaluation on Dynamic-MSV-Bench reveals a systematic failure in current video generation architectures. To properly diagnose these failures, we categorized the evaluated baselines into two distinct groups: \textbf{Group 1: Foundation T2V Models}, which test the raw, zero-shot capacity of pure base architectures, and \textbf{Group 2: T2MSV-Specific Frameworks}, which test inference methods or multi-agent pipelines designed specifically for multi-shot generation.
 
-\begin{figure*}[t]
+\begin{figure*}[ht]
     \centering
     \begin{subfigure}{0.48\linewidth}
         \includegraphics[width=\linewidth]{figures/radar_chart_set_a.pdf}
@@ -20,7 +20,7 @@ Our evaluation on Dynamic-MSV-Bench reveals a systematic failure in current vide
 \subsection{Group 1: Foundation T2V Models and the Static Trap}
 Foundation models (e.g., CogVideoX, LTX-Video, SVD, ModelScope) were evaluated by feeding multi-shot prompts directly as sequential text. As shown in Table~\ref{tab:main_results_set_a} and the Pareto frontier in Figure~\ref{fig:scatter}, these models exhibit the raw limits of current diffusion priors. They achieve extremely high Subject Consistency ($>0.81$) but their Background Diversity is catastrophically low ($<0.14$). 
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{figures/tradeoff_scatter.pdf}
     \caption{The trade-off between subject consistency and background dynamics on Semantic-Shift Scenarios (Set A). Current SOTA models cluster in the top-left (Static Trap) or shift towards the bottom-right (Amnesia), illustrating inability to simultaneously achieve high dynamics and identity preservation. The top-right region represents the ideal goal for future T2MSV models, which is currently unoccupied. Dot size represents Diagonal Alignment score.}
@@ -29,7 +29,7 @@ Foundation models (e.g., CogVideoX, LTX-Video, SVD, ModelScope) were evaluated b
 
 Most critically, our mathematically strict \textbf{Diagonal Semantic Alignment (DSA)} scores for these foundation models remain near $0.02$. As visualized in Figure~\ref{fig:heatmap}, this proves that merely scaling up a base model does not grant it the ability to decouple instructions across shots; instead, the model optimizes for a local minimum by generating a single static scene ("The Static Trap"), entirely ignoring narrative transitions to preserve an artificially high consistency score.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{figures/fig5.png}
     \caption{Diagonal Alignment Heatmaps (Softmax-normalized CLIP scores). (A) Models in the Static Trap show uniform similarity across all prompts. (B) Current T2MSV models show some alignment but suffer from prompt bleeding (high off-diagonal values). (C) An ideal model demonstrates sharp diagonal alignment, indicating precise, independent instruction following for each shot.}
@@ -43,7 +43,7 @@ For instance, StoryDiffusion and FreeNoise successfully break out of the Static 
 
 Furthermore, as seen in Table~\ref{tab:main_results_set_b}, when these frameworks are tested on Motion-Control scenarios (Set B) where the background \textit{must} remain fixed, they suffer from \textit{Background Hallucination} (Diversity $> 0.30$). They cannot move the camera without completely altering the 3D environment. Figure~\ref{fig:qualitative} provides a qualitative comparison demonstrating this failure. This proves that wrapping a static foundation model in an agentic or attention-sharing framework does not resolve the fundamental architectural entanglement of motion and identity.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{figures/fig4_filmstrip.pdf}
     \caption{Qualitative comparison on Motion-Control Scenarios (Set B). Traditional metrics misinterpret the "Static Trap" (Top Row) as excellent spatiotemporal continuity due to low sharpness and high raw consistency. Our Diagonal Alignment metric correctly identifies this as a failure to execute differing camera instructions ("Panning" vs. "Zooming"), whereas it rewards models that accurately execute motions while maintaining the scene (Bottom Row).}
