@@ -1,9 +1,12 @@
 \section{Experiments and Unveiling the Blind Spots}
 \label{sec:experiments}
 
-To empirically validate our benchmark and diagnose systemic architectural failures, we conduct an exhaustive evaluation of current video generation models. We categorize our baselines into two distinct paradigms: \textbf{Group 1: Foundation T2V Models} (e.g., CogVideoX, LTX-Video, ModelScope, SVD) and \textbf{Group 2: Specialized T2MSV Frameworks} (e.g., AnimateDiff, FreeNoise, StoryDiffusion). 
+Our evaluation on Dynamic-MSV-Bench reveals a systematic failure in current video generation architectures. To properly diagnose these failures, we categorized the evaluated baselines into two distinct groups: \textbf{Group 1: Foundation T2V Models} and \textbf{Group 2: Specialized T2MSV Frameworks}.
 
-\begin{figure*}[t]
+\subsection{Main Results: Track S and Track M}
+We rigorously evaluate all models across the two contrasting scenarios. Table~\ref{tab:main_results_track_s} presents the results for Track S (Semantic Leap), which tests the model's ability to execute dynamic scene changes while preserving identity. Table~\ref{tab:main_results_track_m} presents the results for Track M (Motion Continuity), which tests the model's ability to maintain a consistent background under continuous motion instructions.
+
+\begin{figure*}[ht]
     \centering
     \begin{subfigure}{0.48\linewidth}
         \includegraphics[width=\linewidth]{figures/radar_chart_set_a.pdf}
@@ -13,76 +16,60 @@ To empirically validate our benchmark and diagnose systemic architectural failur
         \includegraphics[width=\linewidth]{figures/radar_chart_set_b.pdf}
         \caption{Track M: Motion Continuity}
     \end{subfigure}
-    \caption{Radar Charts of Model Performance. In \textbf{Track S}, an ideal model forms a large maximal diamond. In \textbf{Track M}, we plot inverted axes for Diversity and Sharpness ($1-x$) such that a maximal area consistently represents high performance. Current state-of-the-art models fail to achieve the target horizontal "bowtie" geometry in Track M due to near-zero instruction adherence.}
+    \caption{Radar Charts of Model Performance. In \textbf{Track S}, an ideal model would form a large diamond. In \textbf{Track M}, we plot inverted axes for Diversity and Sharpness ($1-x$) such that a large area consistently represents high performance.}
     \label{fig:radar}
 \end{figure*}
 
-\subsection{Quantitative Results: The Double-Kill Dilemma}
-Our quantitative results, presented in Table~\ref{tab:main_results_track_s} and Table~\ref{tab:main_results_track_m}, reveal that neither paradigm effectively solves the multi-shot generation problem. Foundation models (Group 1) exhibit the raw limits of current spatiotemporal priors. While they achieve high Subject Consistency (>0.80), they exhibit severely limited Background Diversity (<0.14) in Track S. Most critically, their rigorous \textbf{DSA} scores remain near 0.02, proving they generate a single static scene regardless of narrative instructions. This failure explicitly results in the uniform probability distribution previously seen in Figure~\ref{fig:dsa_heatmaps}(A).
+\subsection{Group 1: Foundation T2V Models and the Static Trap}
+Foundation models (e.g., CogVideoX, LTX-Video, SVD) exhibit the raw limits of spatiotemporal priors. They achieve high Subject Consistency (>0.80) but catastrophically low Background Diversity (<0.10) in Track S. More importantly, their \textbf{DSA} scores remain near $0.02$, proving they generate a single static scene regardless of narrative instructions. This results in the uniform probability distribution seen in Fig.~\ref{fig:dsa_heatmaps}(A).
 
-Conversely, specialized inference frameworks (Group 2) successfully break out of the Static Trap, achieving higher Background Diversity in Track S. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets, leading to \textit{Identity Amnesia}. This fundamental trade-off is quantitatively visualized by the Pareto frontier in Figure~\ref{fig:scatter}. 
+\subsection{Group 2: T2MSV Frameworks and the Trade-off Dilemma}
+Specialized frameworks successfully break out of the Static Trap, achieving higher Background Diversity in Track S. However, this dynamism comes at the severe cost of identity preservation. Their Subject Consistency plummets, leading to \textit{Identity Amnesia}. This is clearly visualized in our comprehensive performance landscape in Figure~\ref{fig:scatter}. 
 
-\begin{figure}[t]
+\begin{figure*}[ht]
     \centering
-    \includegraphics[width=\linewidth]{figures/tradeoff_scatter.pdf}
-    \caption{The Identity-Dynamics Pareto Frontier: \textbf{Track S} (Circles) vs. \textbf{Track M} (Crosses). Connecting lines represent the shift of individual models between the two stress-test tracks. The ideal top-right goal remains unoccupied, as models either collapse into the Static Trap (top-left) or suffer from Identity Amnesia/Hallucination (bottom-right). Dot size represents DSA score.}
+    \includegraphics[width=\linewidth]{figures/rich_tradeoff_scatter.pdf}
+    \caption{The comprehensive performance landscape across Track S and Track M. The plots explicitly show the relationship between Subject Consistency, Background Diversity, and our proposed Diagonal Semantic Alignment (DSA). Current models are completely missing from the "Ideal Decoupled" goal (high consistency, high DSA).}
     \label{fig:scatter}
-\end{figure}
+\end{figure*}
 
-\subsection{Qualitative Analysis: Multi-track Migration and Paradoxes}
-Our evaluation exposes a fascinating paradox: a generative metric's intrinsic value is deeply context-dependent. As visualized by the connecting lines in Figure~\ref{fig:scatter}, models exhibit a significant "migration" between failure modes depending on the requested scenario. For instance, CogVideoX exhibits exceptionally low Background Diversity in both tracks. In Track M, traditional evaluators might mistakenly interpret this as excellent spatial continuity. However, our dual-track analysis reveals the underlying truth: the exact same model's low diversity in Track S proves it is merely trapped in static generation. 
-
-Conversely, StoryDiffusion demonstrates a "dynamics-at-all-costs" behavior. While it achieves an effective narrative shift in Track S, it critically fails to constrain its generative variance in Track M, leading to unwanted background hallucination. As shown in the qualitative filmstrips in Figure~\ref{fig:qualitative}, both paradigms fail to execute controlled multi-shot motion. This multi-track migration confirms that achieving high-fidelity T2MSV requires \textbf{Decoupled Dynamics}—the architectural ability to selectively engage or disengage motion priors while strictly preserving identity.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\linewidth]{figures/fig4_filmstrip.pdf}
-    \caption{Qualitative comparison on Track M. The "Static Trap" (Top Row) mimics continuity through a total lack of motion (DSA $\approx 0$). Specialized frameworks (Bottom Row) attempt motion but ignore the specific "Panning" vs. "Zooming" instructions (Low DSA). Both current paradigms fail to execute controlled multi-shot motion.}
-    \label{fig:qualitative}
-\end{figure}
+\subsection{The "Double-Kill" and the Context Paradox}
+Our evaluation exposes a fascinating paradox: a metric's value is deeply context-dependent. For instance, CogVideoX exhibits exceptionally low Background Diversity. In Track M, traditional evaluators might misinterpret this as excellent spatial continuity. However, our cross-scenario analysis reveals the truth: the same model exhibits the same low diversity in Track S, proving it is merely trapped in static generation. Without the dual-track perspective of Track S and Track M, this critical failure would remain masked.
 
 \begin{table*}[t]
 \centering
-\caption{Main Results on Track S (Semantic Leap). Models are grouped by architecture category to highlight the inherent Trade-off Dilemma. (Evaluation Desiderata: All metrics should be $\uparrow$. Best in \textbf{bold}.)}
+\caption{Main Results on \textbf{Track S (Semantic Leap)}. This track demands narrative-driven dynamics. (Golden Rule: All metrics should be $\uparrow$. Best in \textbf{bold}.)}
 \label{tab:main_results_track_s}
-\resizebox{\textwidth}{!}{
+\resizebox{0.95\textwidth}{!}{
 \begin{tabular}{ll|cccc}
 \toprule
 \textbf{Category} & \textbf{Method} & \textbf{Subj. Cons.} $\uparrow$ & \textbf{BG Div.} $\uparrow$ & \textbf{DSA} $\uparrow$ & \textbf{Sharpness} $\uparrow$ \\
 \midrule
-\multirow{4}{*}{Foundation T2V} 
-& CogVideoX & 0.902 & 0.073 & 0.045 & 0.262 \\
-& LTX-Video & \textbf{0.951} & 0.037 & 0.024 & 0.132 \\
-& ModelScope & 0.851 & 0.112 & 0.031 & 0.352 \\
-& SVD & 0.816 & 0.138 & 0.020 & 0.102 \\
-\midrule
-\multirow{3}{*}{T2MSV Frameworks}
-& AnimateDiff & 0.816 & 0.138 & 0.023 & 0.485 \\
-& FreeNoise & 0.528 & 0.354 & 0.032 & \textbf{0.893} \\
-& StoryDiffusion & 0.443 & \textbf{0.418} & \textbf{0.222} & 0.702 \\
+Framework & AnimateDiff & 0.816 & 0.138 & 0.023 & 0.485 \\
+Foundation & CogVideoX & 0.902 & 0.073 & 0.045 & 0.262 \\
+Framework & FreeNoise & 0.528 & 0.354 & 0.032 & \textbf{0.893} \\
+Foundation & LTX-Video & \textbf{0.951} & 0.037 & 0.024 & 0.132 \\
+Foundation & ModelScope & 0.851 & 0.112 & 0.031 & 0.352 \\
+Foundation & SVD & 0.816 & 0.138 & 0.020 & 0.102 \\
+Framework & StoryDiffusion & 0.443 & \textbf{0.418} & \textbf{0.222} & 0.702 \\
 \bottomrule
 \end{tabular}}
-\end{table*}
+\vspace{0.3cm} % Add some space between tables
 
-\begin{table*}[t]
-\centering
-\caption{Main Results on Track M (Motion Continuity). (Evaluation Desiderata: Cons. $\uparrow$, Div. $\downarrow$, DSA $\uparrow$, Sharpness $\downarrow$. Best in \textbf{bold}.)}
+\caption{Main Results on \textbf{Track M (Motion Continuity)}. This track demands spatial stability under camera motion. (Golden Rule: Cons. $\uparrow$, Div. $\downarrow$, DSA $\uparrow$, Sharpness $\downarrow$. Best in \textbf{bold}.)}
 \label{tab:main_results_track_m}
-\resizebox{\textwidth}{!}{
+\resizebox{0.95\textwidth}{!}{
 \begin{tabular}{ll|cccc}
 \toprule
 \textbf{Category} & \textbf{Method} & \textbf{Subj. Cons.} $\uparrow$ & \textbf{BG Div.} $\downarrow$ & \textbf{DSA} $\uparrow$ & \textbf{Sharpness} $\downarrow$ \\
 \midrule
-\multirow{4}{*}{Foundation T2V}
-& CogVideoX & \textbf{0.939} & \textbf{0.046} & 0.020 & 0.227 \\
-& LTX-Video & 0.885 & 0.086 & 0.010 & 0.296 \\
-& ModelScope & 0.822 & 0.134 & 0.014 & 0.385 \\
-& SVD & 0.852 & 0.111 & 0.012 & \textbf{0.064} \\
-\midrule
-\multirow{3}{*}{T2MSV Frameworks}
-& AnimateDiff & 0.765 & 0.176 & 0.017 & 0.530 \\
-& FreeNoise & 0.565 & 0.326 & 0.020 & 0.808 \\
-& StoryDiffusion & 0.377 & 0.467 & \textbf{0.060} & 0.710 \\
+Framework & AnimateDiff & 0.765 & 0.176 & 0.017 & 0.530 \\
+Foundation & CogVideoX & \textbf{0.939} & \textbf{0.046} & 0.020 & 0.227 \\
+Framework & FreeNoise & 0.565 & 0.326 & 0.020 & 0.808 \\
+Foundation & LTX-Video & 0.885 & 0.086 & 0.010 & 0.296 \\
+Foundation & ModelScope & 0.822 & 0.134 & 0.014 & 0.385 \\
+Foundation & SVD & 0.852 & 0.111 & 0.012 & \textbf{0.064} \\
+Framework & StoryDiffusion & 0.377 & 0.467 & \textbf{0.060} & 0.710 \\
 \bottomrule
 \end{tabular}}
 \end{table*}
