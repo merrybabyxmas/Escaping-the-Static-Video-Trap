@@ -1,11 +1,11 @@
-\section{Dynamic-MSV-Bench and 4D Decoupled Methodology}
+\section{The DIAL Benchmark and 4D Methodology}
 \label{sec:benchmark}
 
-We propose the \textbf{Dynamic-MSV-Bench}, a meticulously controlled stress-test dataset designed specifically to expose the structural blind spots of current video generation models. Unlike generic quality benchmarks that rely on massive, uncurated prompt pools, our benchmark consists of exactly 1,000 highly targeted multi-shot scenarios. This scale is optimal for exposing the "Double-Kill" dilemma while remaining computationally feasible for our rigorous frame-by-frame 4D evaluation pipeline. Table~\ref{tab:taxonomy} details our comprehensive taxonomy, dividing the 1,000 scenarios equally into Track S and Track M.
+We propose the \textbf{DIAL} (Diagonal Instruction ALignment) benchmark, a meticulously controlled stress-test dataset designed specifically to expose the structural blind spots of current video generation models. Unlike generic quality benchmarks that rely on massive, uncurated prompt pools, our benchmark consists of 1,000 highly targeted multi-shot scenarios. This scale is optimal for exposing the ``Double-Kill'' dilemma while remaining computationally feasible for our rigorous 4D evaluation pipeline. Table~\ref{tab:taxonomy} details our comprehensive taxonomy, dividing the 1,000 scenarios equally into Track S and Track M.
 
 \begin{table*}[h!]
 \centering
-\caption{The Comprehensive Taxonomy of Dynamic-MSV-Bench (1,000 Scenarios). Each track features 500 prompts distributed across 4 sub-categories to test extreme edge cases, preventing models from exploiting uniform continuity.}
+\caption{The Comprehensive Taxonomy of the \textbf{DIAL} Benchmark (1,000 Scenarios). Each track features 500 prompts distributed across 4 sub-categories to test extreme edge cases, preventing models from exploiting uniform continuity.}
 \label{tab:taxonomy}
 \resizebox{0.95\textwidth}{!}{
 \begin{tabular}{llcll}
@@ -29,6 +29,10 @@ We propose the \textbf{Dynamic-MSV-Bench}, a meticulously controlled stress-test
 \subsection{Evaluation Scenarios: Track S and Track M}
 As illustrated in Figure~\ref{fig:sets_comparison}, our evaluation framework categorizes generation scenarios into two conceptually orthogonal extremes to stress-test narrative robustness and spatial coherence.
 
+\noindent\textbf{Track S (Semantic Leap):} This track evaluates narrative diversity by requiring radical environmental shifts while strictly preserving subject identity. This is specifically designed to expose models that fail to execute semantic leaps, falling into the \textbf{Static Trap}.
+
+\noindent\textbf{Track M (Motion Continuity):} In contrast, Track M evaluates spatial integrity, where the background must remain perfectly consistent while the camera executes specific physical motions (e.g., panning or zooming). This track tests the model's ability to maintain a consistent world state under dynamic camera control.
+
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/images/fig_AB.jpg}
@@ -37,19 +41,19 @@ As illustrated in Figure~\ref{fig:sets_comparison}, our evaluation framework cat
 \end{figure*}
 
 \subsection{Formulation of 4D Decoupled Metrics}
-To diagnose generative failures accurately, we introduce four strictly decoupled metrics designed with robust mathematical penalty mechanisms to prevent error propagation and metric exploitation.
+To diagnose generative failures accurately, we introduce four strictly decoupled metrics designed with robust mathematical penalty mechanisms.
 
-\noindent\textbf{1. Subject Consistency ($\mathcal{C}_{subj}$).} We measure the semantic identity preservation of the core subject using DINOv2 embeddings. The subjects are localized using Grounding DINO to prevent background bias. Crucially, we enforce a strict \textbf{Error Propagation Penalty}: if the masking model fails to detect the subject due to severe 'Identity Amnesia' or catastrophic morphing into the background, the frame is immediately assigned a hard consistency score of $0.0$. This ensures that catastrophic generation failures are actively penalized rather than ignored.
+\noindent\textbf{1. Subject Consistency ($\mathcal{C}_{subj}$).} We measure the semantic identity preservation of the core subject using DINOv2 embeddings. The subjects are localized using Grounding DINO to prevent background bias. Crucially, we enforce a strict \textbf{Error Propagation Penalty}: if the masking model fails to detect the subject due to severe identity amnesia or catastrophic morphing into the background, the frame is immediately assigned a hard consistency score of $0.0$. This ensures that catastrophic generation failures are actively penalized rather than ignored.
 
-\noindent\textbf{2. Background Diversity ($\mathcal{D}_{bg}$).} To formally identify the \textit{Static Trap}, we measure the variance of the background environment embeddings. $\mathcal{D}_{bg}$ is calculated as the mean perceptual distance from the average background embedding. A low score in Track S definitively confirms the model has failed to execute the semantic leap.
+\noindent\textbf{2. Background Diversity ($\mathcal{D}_{bg}$).} To formally identify the \textit{Static Trap}, we measure the variance of the background environment embeddings. $\mathcal{D}_{bg}$ is calculated as the mean perceptual distance from the average background embedding across shots. A low score in Track S definitively confirms the model has failed to execute the semantic leap.
 
-\noindent\textbf{3. Cut-Transition Sharpness ($\mathcal{S}_{cut}$).} Traditional metrics assume a fixed cut time ($t_{cut}$), which is unrealistic as generative models often transition gradually or at unpredictable frames. To solve this, we introduce a \textbf{Dynamic Sliding Window Peak Prominence} algorithm. We calculate the LPIPS distance across all adjacent frames within a window $W$ and define sharpness as the peak distance normalized by the surrounding mean:
+\noindent\textbf{3. Cut-Transition Sharpness ($\mathcal{S}_{cut}$).} Traditional metrics assume a fixed cut time, which is unrealistic. To solve this, we introduce a \textbf{Dynamic Sliding Window Peak Prominence} algorithm. We calculate the LPIPS distance across all adjacent frames within a window $W$ and define sharpness as the peak distance normalized by the surrounding mean:
 $$\mathcal{S}_{cut} = 1 - \frac{1}{\frac{\max_{t \in W} \text{LPIPS}(f_t, f_{t+1})}{\text{mean}(\text{LPIPS}) + \epsilon} + 1}$$
-This mathematically differentiates a sharp, deliberate cinematic cut from a slow, blurry fade.
+This mathematically differentiates a sharp, deliberate cinematic cut from a slow, blurry fade or morphing artifact.
 
-\noindent\textbf{4. Diagonal Semantic Alignment (DSA).} Traditional CLIP scores suffer from a "Global Similarity Paradox," failing to capture specific instruction adherence. We solve this by applying a column-wise softmax to the shot-prompt similarity matrix $M$:
+\noindent\textbf{4. Diagonal Semantic Alignment (DSA).} Traditional CLIP scores measure absolute alignment, which is blind to context bleeding. We solve this by applying a column-wise softmax to the $K \times K$ shot-prompt similarity matrix $M$:
 $$P_{i,j} = \frac{\exp(\tau \cdot M_{i,j})}{\sum_{k=1}^{K} \exp(\tau \cdot M_{k,j})}, \quad DSA = \max \left( 0, \frac{\frac{1}{K}\sum_{i=1}^{K} P_{i,i} - \frac{1}{K}}{1 - \frac{1}{K}} \right)$$
-\textbf{Hyperparameter Robustness:} The temperature $\tau$ is not an arbitrary hyperparameter, but the learned logit scale inherent to the pre-trained CLIP model (typically $\sim 100.0$). As detailed in our Appendix Ablation Studies, varying $\tau \in \{0.1, 1.0, 10.0, 100.0\}$ strictly preserves the Spearman rank correlation among evaluated models. DSA consistently exposes the Static Trap ($DSA \approx 0$) regardless of the scale, proving it is a structurally robust evaluator of multi-shot independence.
+\textbf{Hyperparameter Robustness:} The temperature $\tau$ is not an arbitrary hyperparameter, but the learned logit scale inherent to the pre-trained CLIP model (typically $\sim 100.0$). As detailed in our Appendix Ablation Studies, DSA consistently exposes the Static Trap ($DSA \approx 0$) regardless of the scale, proving it is a structurally robust evaluator of multi-shot independence. By leveraging a column-wise softmax, DSA shifts the paradigm from absolute alignment to \textbf{Contrastive Instruction Isolation}, forcing a zero-sum game that assigning a strict zero score to static, instruction-agnostic generations.
 
 \begin{figure*}[t]
     \centering
