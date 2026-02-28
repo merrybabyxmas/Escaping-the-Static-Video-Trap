@@ -7,8 +7,110 @@ Existing quality and consistency metrics, such as Fréchet Video Distance (FVD)~
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\linewidth]{figures/fig1_overview.pdf}
-    \caption{Overview of the \textbf{DIAL} Benchmark and the \textbf{DSA} Pipeline. (A) Current models exploit traditional consistency metrics via the \textbf{Static Trap} or suffer from \textbf{Identity Amnesia} and \textbf{Context Bleeding}. (B) We propose \textbf{Diagonal Semantic Alignment (DSA)}, which utilizes a column-wise softmax to mathematically guarantee instruction isolation. (C) DIAL correctly penalizes failing models, uncovering the structural ``Double-Kill'' dilemma.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[
+        font=\sffamily\small,
+        box/.style={draw, rounded corners, inner sep=10pt, thick},
+        sectionbox/.style={box, fill=black!2, minimum width=17.5cm, align=left},
+        imgnode/.style={inner sep=0pt, draw=black, thick},
+        arrow/.style={->, >=latex, thick, draw=black!70}
+    ]
+
+    % --- SECTION A: Problem Exposure ---
+    \node[sectionbox, minimum height=4.5cm] (secA) at (0, 0) {};
+    \node[anchor=north west, font=\bfseries\large] at (secA.north west) {A. Failure Modes in Multi-Shot Video Generation (Track S: Space Traveler)};
+
+    % Prompts
+    \node[anchor=north west, align=left, text width=5cm, inner sep=5pt] (prompts) at ([xshift=0.5cm, yshift=-1cm]secA.north west) {
+        \textbf{Input Prompts:}\\[3pt]
+        \textit{Shot 1:} ``A mysterious space traveler standing in an \textbf{underwater city}...''\\[3pt]
+        \textit{Shot 2:} ``...standing in a \textbf{martian surface}...''
+    };
+
+    % Static Trap Case
+    \node[anchor=north west, align=center] (cx1) at ([xshift=6cm, yshift=-0.8cm]secA.north west) {\includegraphics[width=2.5cm, height=2.5cm, keepaspectratio]{figures/cx_shot1.png}\\[2pt]Shot 1 (Underwater)};
+    \node[anchor=west, align=center] (cx2) at ([xshift=0.2cm]cx1.east) {\includegraphics[width=2.5cm, height=2.5cm, keepaspectratio]{figures/cx_shot2.png}\\[2pt]Shot 2 (Failed Leap)};
+    
+    \node[anchor=south, align=center, text=red!80!black, font=\bfseries] (cxlabel) at ([yshift=-0.2cm, xshift=1.35cm]cx1.south) {Failure 1: Static Trap\\(High Continuity, Ignores Prompt)};
+    \draw[arrow, dashed, red!80!black] (cx1.east) -- (cx2.west);
+
+    % Identity Amnesia Case
+    \node[anchor=west, align=center] (sd1) at ([xshift=1.5cm]cx2.east) {\includegraphics[width=2.5cm, height=2.5cm, keepaspectratio]{figures/sd_shot1.png}\\[2pt]Shot 1 (Subject A)};
+    \node[anchor=west, align=center] (sd2) at ([xshift=0.2cm]sd1.east) {\includegraphics[width=2.5cm, height=2.5cm, keepaspectratio]{figures/sd_shot2.png}\\[2pt]Shot 2 (Morphed B)};
+    
+    \node[anchor=south, align=center, text=orange!90!black, font=\bfseries] (sdlabel) at ([yshift=-0.2cm, xshift=1.35cm]sd1.south) {Failure 2: Identity Amnesia\\(Background Shifts, Subject Melts)};
+    \draw[arrow, dashed, orange!90!black] (sd1.east) -- (sd2.west);
+
+
+    % --- SECTION B: Pipeline ---
+    \node[sectionbox, minimum height=3.5cm] (secB) at ([yshift=-5.0cm]secA.center) {};
+    \node[anchor=north west, font=\bfseries\large] at (secB.north west) {B. The DIAL Pipeline \& Diagonal Semantic Alignment (DSA)};
+
+    % Matrix M
+    \node[anchor=north west, align=center] (matM) at ([xshift=1cm, yshift=-0.8cm]secB.north west) {
+        \textbf{Absolute Similarity Matrix $M$}\\
+        $\begin{bmatrix} 0.85 & 0.40 \\ 0.30 & 0.75 \end{bmatrix}$
+    };
+
+    % Equation
+    \node[anchor=west, align=center, draw, fill=white, rounded corners, inner sep=5pt] (eq) at ([xshift=2cm]matM.east) {
+        \textbf{Column-wise Softmax Normalization}\\[5pt]
+        $P_{i,j} = \frac{\exp(\tau \cdot M_{i,j})}{\sum_{k=1}^{K} \exp(\tau \cdot M_{k,j})}$
+    };
+
+    % Matrix P
+    \node[anchor=west, align=center] (matP) at ([xshift=2cm]eq.east) {
+        \textbf{DSA Heatmap $P$ (Contrastive)}\\
+        $\begin{bmatrix} \mathbf{0.95} & 0.05 \\ 0.05 & \mathbf{0.95} \end{bmatrix}$
+    };
+    \node[below=5pt of matP, text=green!60!black, font=\bfseries] {Forces Instruction Isolation ($DSA \rightarrow 1$)};
+
+    \draw[arrow] (matM.east) -- (eq.west);
+    \draw[arrow] (eq.east) -- (matP.west);
+
+
+    % --- SECTION C: Results ---
+    \node[sectionbox, minimum height=4.5cm] (secC) at ([yshift=-4.5cm]secB.center) {};
+    \node[anchor=north west, font=\bfseries\large] at (secC.north west) {C. Unveiling the ``Double-Kill'' Dilemma};
+
+    % Legacy vs DIAL text
+    \node[anchor=north west, align=left, text width=6cm] (textC) at ([xshift=1cm, yshift=-1cm]secC.north west) {
+        \textbf{Legacy Metrics (e.g., FVD)}\\
+        Inherently reward uniform continuity, giving ``Static Trap'' models passing scores.\\[5pt]
+        \textbf{DIAL Metrics}\\
+        Orthogonally evaluates Diversity and Consistency, mathematically assigning $0.0$ to static generation.
+    };
+
+    % Scatter Plot
+    \begin{scope}[shift={(9, -13.5)}]
+        \begin{axis}[
+            width=7cm, height=4cm,
+            xlabel={Background Diversity $\rightarrow$},
+            ylabel={Subject Consistency $\uparrow$},
+            xmin=-0.05, xmax=1.05,
+            ymin=-0.05, ymax=1.05,
+            xtick={0, 1}, ytick={0, 1},
+            grid=both, grid style={dashed, gray!30},
+            axis background/.style={fill=white},
+            legend pos=south west,
+            legend style={nodes={scale=0.7, transform shape}, font=\sffamily}
+        ]
+        
+        \addplot[only marks, mark=*, mark size=4pt, red!70, fill=red!40] coordinates {(0.1, 0.9) (0.15, 0.85)};
+        \node[red!80!black, font=\bfseries] at (axis cs:0.25,0.7) {Static Trap};
+        
+        \addplot[only marks, mark=*, mark size=4pt, orange!70, fill=orange!40] coordinates {(0.85, 0.2) (0.9, 0.3)};
+        \node[orange!90!black, font=\bfseries] at (axis cs:0.75,0.4) {Amnesia};
+        
+        \addplot[only marks, mark=star, mark size=6pt, green!60!black, fill=green!40!black] coordinates {(0.95, 0.95)};
+        \node[green!60!black, font=\bfseries] at (axis cs:0.65,0.95) {Ideal Zone (Empty)};
+        
+        \end{axis}
+    \end{scope}
+
+    \end{tikzpicture}
+    }
+    \caption{Overview of the \textbf{DIAL} Benchmark and the \textbf{DSA} Pipeline. \textbf{(A)} We utilize actual generated frames from our stress-test scenarios (e.g., Track S) to demonstrate how current models exploit traditional metrics via the \textbf{Static Trap} or fail visually via \textbf{Identity Amnesia}. \textbf{(B)} Our \textbf{Diagonal Semantic Alignment (DSA)} leverages a column-wise softmax to mathematically guarantee instruction isolation and explicitly penalize context bleeding. \textbf{(C)} This rigorous formulation successfully uncovers the underlying ``Double-Kill'' structural dilemma, proving that current architectures fail to balance spatiotemporal dynamics.}
     \label{fig:overview}
 \end{figure*}
 
