@@ -7,69 +7,7 @@ Existing quality and consistency metrics, such as Fréchet Video Distance (FVD)~
 
 \begin{figure*}[t]
     \centering
-    \begin{tikzpicture}[node distance=2.5cm, auto, scale=0.85, every node/.style={scale=0.85}]
-        % --- TOP: Problem Exposure (Cybernetic Samurai Scenario) ---
-        \node[draw, thick, rectangle, fill=blue!10, text width=16cm, minimum height=3.5cm, rounded corners] (topbox) at (0,4) {};
-        \node[below right] at (topbox.north west) {\textbf{A. Failure Modes in T2MSV (e.g., Track S: Cybernetic Samurai)}};
-        
-        % Prompts
-        \node[text width=4cm, font=\scriptsize] (p1) at (-6.5,4.5) {Prompt 1: ``A cybernetic samurai in a traditional \textbf{Japanese garden}...''};
-        \node[text width=4cm, font=\scriptsize] (p2) at (-6.5,3.5) {Prompt 2: ``A cybernetic samurai in a neon \textbf{Cyberpunk city}...''};
-
-        % Failure Case: Static Trap
-        \node[draw, rectangle, fill=white, text width=2.5cm, align=center, font=\tiny] (st1) at (-2,4.8) {Shot 1: Garden};
-        \node[draw, rectangle, fill=white, text width=2.5cm, align=center, font=\tiny] (st2) at (-2,3.8) {Shot 2: \textbf{Garden} (Static Trap)};
-        \node[below, font=\tiny\bfseries, color=red] at (st2.south) {Continuity Score: 0.99 (Metric Loophole)};
-
-        % Failure Case: Identity Amnesia
-        \node[draw, rectangle, fill=white, text width=2.5cm, align=center, font=\tiny] (ia1) at (1,4.8) {Shot 1: Armor Red};
-        \node[draw, rectangle, fill=white, text width=2.5cm, align=center, font=\tiny] (ia2) at (1,3.8) {Shot 2: Armor \textbf{Blue} (Identity Amnesia)};
-        \node[below, font=\tiny\bfseries, color=orange] at (ia2.south) {Diversity Score: 0.95 (Semantic Success but Visual Failure)};
-
-        % Failure Case: Context Bleeding
-        \node[draw, rectangle, fill=white, text width=2.5cm, align=center, font=\tiny] (cb1) at (4,4.3) {Garden + City \textbf{Morphed} (Context Bleeding)};
-        \node[below, font=\tiny\bfseries, color=purple] at (cb1.south) {Instruction Conflict};
-
-        % --- CENTER: Proposed DIAL Pipeline ---
-        \node[draw, thick, rectangle, fill=green!5, text width=16cm, minimum height=3.5cm, rounded corners] (midbox) at (0,0) {};
-        \node[below right] at (midbox.north west) {\textbf{B. DIAL Evaluation Pipeline \& Diagonal Semantic Alignment (DSA)}};
-
-        % Similarity Matrix
-        \matrix [matrix of nodes, nodes={draw, rectangle, minimum size=0.5cm, font=\tiny}, label=below:\tiny{Similarity Matrix $M$}] (mat) at (-6, 0)
-        {
-          0.8 & 0.4 \\
-          0.3 & 0.7 \\
-        };
-
-        \node[draw, single arrow, minimum width=0.5cm, minimum height=1cm, fill=gray!30] (arrow1) at (-3.5, 0) {Softmax};
-
-        % Normalized Matrix (DSA Heatmap)
-        \matrix [matrix of nodes, nodes={draw, rectangle, fill=blue!50, minimum size=0.5cm, font=\tiny}, label=below:\tiny{DSA Heatmap $P$}] (heat) at (-1, 0)
-        {
-          \textbf{0.9} & 0.1 \\
-          0.1 & \textbf{0.9} \\
-        };
-
-        \node[right, text width=7cm, font=\scriptsize] (formula) at (2,0) {
-            \textbf{Column-wise Softmax Normalization:} \\
-            $P_{i,j} = \frac{\exp(\tau \cdot M_{i,j})}{\sum_{k=1}^{K} \exp(\tau \cdot M_{k,j})}$ \\
-            \textbf{Contrastive Instruction Isolation:} \\
-            Penalizes context bleeding by enforcing exclusivity.
-        };
-
-        % --- BOTTOM: Comparative Analysis ---
-        \node[draw, thick, rectangle, fill=yellow!5, text width=16cm, minimum height=3.5cm, rounded corners] (botbox) at (0,-4) {};
-        \node[below right] at (botbox.north west) {\textbf{C. Legacy vs. DIAL Metrics: Unveiling the Blind Spots}};
-
-        % Bar Chart Placeholder
-        \node[draw, rectangle, fill=white, text width=4cm, align=center, font=\tiny] (bar) at (-4, -4) {Legacy Metrics (FVD/CLIP): \\ Failing models score high};
-
-        \node[draw, single arrow, minimum width=0.5cm, minimum height=1cm, fill=red!20] (arrow2) at (-0.5, -4) {Correction};
-
-        % Pareto Plot Placeholder
-        \node[draw, rectangle, fill=white, text width=5cm, align=center, font=\tiny] (pareto) at (4, -4) {DIAL Pareto Frontier: \\ Highlights the \textbf{Unoccupied Ideal Zone}};
-
-    \end{tikzpicture}
+    \includegraphics[width=\linewidth]{figures/fig1_overview.pdf}
     \caption{Overview of the \textbf{DIAL} Benchmark and the \textbf{DSA} Pipeline. (A) Current models exploit traditional consistency metrics via the \textbf{Static Trap} or suffer from \textbf{Identity Amnesia} and \textbf{Context Bleeding}. (B) We propose \textbf{Diagonal Semantic Alignment (DSA)}, which utilizes a column-wise softmax to mathematically guarantee instruction isolation. (C) DIAL correctly penalizes failing models, uncovering the structural ``Double-Kill'' dilemma.}
     \label{fig:overview}
 \end{figure*}
